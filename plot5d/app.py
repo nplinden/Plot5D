@@ -7,7 +7,8 @@ from plot5d.callbacks import *
 columns = list(sample.df.columns)
 
 app.layout = html.Div(
-        [html.H1("Plot5D"),
+    [
+        html.H1("Plot5D"),
         html.H3("Plot Size"),
         dcc.Input(id="x_size", type="number", value=800, step=50, placeholder="X Size"),
         dcc.Input(id="y_size", type="number", value=800, step=50, placeholder="Y Size"),
@@ -15,7 +16,7 @@ app.layout = html.Div(
             [
                 dbc.Col(html.H3("Row QOI")),
                 dbc.Col(html.H3("Column QOI")),
-             ],
+            ],
         ),
         dbc.Row(
             [
@@ -23,22 +24,22 @@ app.layout = html.Div(
                 dbc.Col(dcc.Dropdown([], id="row_val_dropdown", multi=True)),
                 dbc.Col(dcc.Dropdown(columns, id="col_dropdown")),
                 dbc.Col(dcc.Dropdown([], id="col_val_dropdown", multi=True)),
-             ],
+            ],
         ),
         dbc.Row(
             [
                 dbc.Col(html.H3("X axis QOI")),
                 dbc.Col(html.H3("Y axis QOI")),
                 dbc.Col(html.H3("Color QOI")),
-             ],
+            ],
         ),
         dbc.Row(
             [
                 dbc.Col(dcc.Dropdown(columns, id="x_dropdown")),
                 dbc.Col(dcc.Dropdown(columns, id="y_dropdown")),
                 dbc.Col(dcc.Dropdown(columns, id="color_dropdown")),
-             ],
+            ],
         ),
-        dcc.Graph(id="5DPlot")
-                  ]
+        dcc.Graph(id="5DPlot"),
+    ]
 )
