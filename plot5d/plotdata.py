@@ -19,9 +19,7 @@ class PlotData:
             Q3 = np.random.choice([100, 200, 300, 400, 500], Q1.shape)
             Q4 = np.log(Q3 * np.random.normal(1, 0.2, Q3.shape)) * np.log(Q2)
             Q5 = np.astype((np.floor(Q4) % 27 % 5 + 10) * 100, int)
-            self.df = pd.DataFrame(
-                data={"Q1": Q1, "Q2": Q2, "Q3": Q3, "Q4": Q4, "Q5": Q5}
-            )
+            self.df = pd.DataFrame(data={"Q1": Q1, "Q2": Q2, "Q3": Q3, "Q4": Q4, "Q5": Q5})
             self.df.to_csv(p, index=False)
 
     def subplots(

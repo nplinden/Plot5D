@@ -21,13 +21,9 @@ table = dash_table.DataTable(
 columns = list(sample.df.columns)
 
 row_dropdown = dcc.Dropdown(columns, id="row_dropdown", className="dropdown")
-row_val_dropdown = dcc.Dropdown(
-    [], id="row_val_dropdown", multi=True, className="dropdown"
-)
+row_val_dropdown = dcc.Dropdown([], id="row_val_dropdown", multi=True, className="dropdown")
 col_dropdown = dcc.Dropdown(columns, id="col_dropdown", className="dropdown")
-col_val_dropdown = dcc.Dropdown(
-    [], id="col_val_dropdown", multi=True, className="dropdown"
-)
+col_val_dropdown = dcc.Dropdown([], id="col_val_dropdown", multi=True, className="dropdown")
 x_dropdown = dcc.Dropdown(columns, id="x_dropdown", className="dropdown")
 y_dropdown = dcc.Dropdown(columns, id="y_dropdown", className="dropdown")
 color_dropdown = dcc.Dropdown(columns, id="color_dropdown", className="dropdown")
@@ -35,12 +31,8 @@ x_min = dcc.Input(id="x_min", type="number", placeholder="Min", className="input
 x_max = dcc.Input(id="x_max", type="number", placeholder="Max", className="input")
 y_min = dcc.Input(id="y_min", type="number", placeholder="Min", className="input")
 y_max = dcc.Input(id="y_max", type="number", placeholder="Max", className="input")
-color_min = dcc.Input(
-    id="color_min", type="number", placeholder="Min", className="input"
-)
-color_max = dcc.Input(
-    id="color_max", type="number", placeholder="Max", className="input"
-)
+color_min = dcc.Input(id="color_min", type="number", placeholder="Min", className="input")
+color_max = dcc.Input(id="color_max", type="number", placeholder="Max", className="input")
 
 core = dbc.Container(
     [
@@ -73,12 +65,8 @@ core = dbc.Container(
         ),
         dbc.Row(
             [
-                menu(
-                    "X Axis Quantity", components=[x_dropdown, x_max, x_min], col=True
-                ),
-                menu(
-                    "Y Axis Quantity", components=[y_dropdown, y_min, y_max], col=True
-                ),
+                menu("X Axis Quantity", components=[x_dropdown, x_max, x_min], col=True),
+                menu("Y Axis Quantity", components=[y_dropdown, y_min, y_max], col=True),
                 menu(
                     "Color Axis Quantity",
                     components=[color_dropdown, color_min, color_max],
