@@ -24,20 +24,21 @@ class PlotData:
             )
             self.df.to_csv(p, index=False)
 
-    def subplots(self, 
-                 rows, 
-                 cols, 
-                 x, 
-                 y, 
-                 color, 
-                 figsize,
-                 x_min,
-                 x_max,
-                 y_min,
-                 y_max,
-                 color_min,
-                 color_max,
-                 ):
+    def subplots(
+        self,
+        rows,
+        cols,
+        x,
+        y,
+        color,
+        #  figsize,
+        x_min,
+        x_max,
+        y_min,
+        y_max,
+        color_min,
+        color_max,
+    ):
         """
         rows = ('Q5', [1100, 1200, 1300, 1400])
         cols = ('Q3', [100, 200, 300, 400])
@@ -67,7 +68,7 @@ class PlotData:
             column_titles=[f"{colname}={cols[1][c]}" for c in range(ncols)],
             row_titles=[f"{rowname}={rows[1][r]}" for r in range(nrows)],
         )
-        logger.info("figsize=({}, {})", nrows, ncols)
+        # logger.info("figsize=({}, {})", nrows, ncols)
         df = self.df[
             (self.df[x] < x_max)
             & (self.df[x] > x_min)
@@ -75,7 +76,7 @@ class PlotData:
             & (self.df[y] > y_min)
             & (self.df[color] < color_max)
             & (self.df[color] > color_min)
-            ]
+        ]
         for row, col in product(range(1, nrows + 1), range(1, ncols + 1)):
             rowval = rows[1][row - 1]
             colval = cols[1][col - 1]
@@ -105,8 +106,8 @@ class PlotData:
             coloraxis=dict(colorscale="Viridis"),
             coloraxis_colorbar=dict(title=color),
             showlegend=False,
-            width=figsize[0],
-            height=figsize[1],
+            # width=figsize[0],
+            # height=figsize[1],
             dragmode="lasso",
         )
         return fig

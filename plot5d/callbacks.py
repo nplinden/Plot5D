@@ -24,6 +24,7 @@ def update_row_val_dropdown(row_dropdown, data):
         value = []
     return sorted(set(sample.df[row_dropdown])), value
 
+
 @callback(
     Output("col_val_dropdown", "options"),
     Output("col_val_dropdown", "value"),
@@ -42,6 +43,7 @@ def update_col_val_dropdown(col_dropdown, data):
         value = []
     return sorted(set(sample.df[col_dropdown])), value
 
+
 @callback(
     Output("5DPlot", "figure"),
     Input("row_dropdown", "value"),
@@ -51,8 +53,6 @@ def update_col_val_dropdown(col_dropdown, data):
     Input("x_dropdown", "value"),
     Input("y_dropdown", "value"),
     Input("color_dropdown", "value"),
-    Input("x_size", "value"),
-    Input("y_size", "value"),
     Input("x_min", "value"),
     Input("x_max", "value"),
     Input("y_min", "value"),
@@ -68,8 +68,6 @@ def update_5dplot(
     x_dropdown,
     y_dropdown,
     color_dropdown,
-    x_size,
-    y_size,
     x_min,
     x_max,
     y_min,
@@ -84,8 +82,6 @@ def update_5dplot(
     logger.info("x_dropdown={}", x_dropdown)
     logger.info("y_dropdown={}", y_dropdown)
     logger.info("color_dropdown={}", color_dropdown)
-    logger.info("x_size={}", x_size)
-    logger.info("y_size={}", y_size)
     if None in [
         row_dropdown,
         row_val_dropdown,
@@ -102,7 +98,6 @@ def update_5dplot(
         x=x_dropdown,
         y=y_dropdown,
         color=color_dropdown,
-        figsize=(x_size, y_size),
         x_min=x_min,
         x_max=x_max,
         y_min=y_min,
@@ -111,11 +106,12 @@ def update_5dplot(
         color_max=color_max,
     )
 
+
 @callback(
     [
         Output("table", "data"),
         Output("table", "columns"),
-        Output("table", "page_count")
+        Output("table", "page_count"),
     ],
     Input("5DPlot", "selectedData"),
     Input("table", "page_current"),
@@ -131,9 +127,10 @@ def select_data(selected, page_current, page_size):
     page_count = len(df) // page_size + 1
     if len(df) > 0 and len(df) % page_size == 0:
         page_count -= 1
-    df = (df.iloc[page_current*page_size: (page_current+1) * page_size])
-    
+    df = df.iloc[page_current * page_size : (page_current + 1) * page_size]
+
     return df.to_dict("records"), [{"name": c, "id": c} for c in df.columns], page_count
+
 
 @callback(
     Output("download-text", "data"),
@@ -145,8 +142,6 @@ def select_data(selected, page_current, page_size):
     State("x_dropdown", "value"),
     State("y_dropdown", "value"),
     State("color_dropdown", "value"),
-    State("x_size", "value"),
-    State("y_size", "value"),
     State("x_min", "value"),
     State("x_max", "value"),
     State("y_min", "value"),
@@ -155,16 +150,15 @@ def select_data(selected, page_current, page_size):
     State("color_max", "value"),
     prevent_initial_call=True,
 )
-def save_state(n_clicks, 
-               row_dropdown,
+def save_state(
+    n_clicks,
+    row_dropdown,
     row_val_dropdown,
     col_dropdown,
     col_val_dropdown,
     x_dropdown,
     y_dropdown,
     color_dropdown,
-    x_size,
-    y_size,
     x_min,
     x_max,
     y_min,
@@ -175,21 +169,20 @@ def save_state(n_clicks,
     state = {
         "row_dropdown": row_dropdown,
         "row_val_dropdown": row_val_dropdown,
-        "col_dropdown":col_dropdown, 
+        "col_dropdown": col_dropdown,
         "col_val_dropdown": col_val_dropdown,
         "x_dropdown": x_dropdown,
         "y_dropdown": y_dropdown,
         "color_dropdown": color_dropdown,
-        "x_size": x_size,
-        "y_size": y_size,
         "x_min": x_min,
         "x_max": x_max,
         "y_min": y_min,
         "y_max": y_max,
         "color_min": color_min,
-        "color_max": color_max
+        "color_max": color_max,
     }
     return dict(content=json.dumps(state, indent=2), filename="state.json")
+
 
 @callback(
     Output("row_dropdown", "value"),
@@ -197,15 +190,13 @@ def save_state(n_clicks,
     Output("x_dropdown", "value"),
     Output("y_dropdown", "value"),
     Output("color_dropdown", "value"),
-    Output("x_size", "value"),
-    Output("y_size", "value"),
     Output("x_min", "value"),
     Output("x_max", "value"),
     Output("y_min", "value"),
     Output("y_max", "value"),
     Output("color_min", "value"),
     Output("color_max", "value"),
-    Input("load_state", "contents")
+    Input("load_state", "contents"),
 )
 def load_state(data):
     if data is None:
@@ -219,8 +210,6 @@ def load_state(data):
         state["x_dropdown"],
         state["y_dropdown"],
         state["color_dropdown"],
-        state["x_size"],
-        state["y_size"],
         state["x_min"],
         state["x_max"],
         state["y_min"],
@@ -229,13 +218,14 @@ def load_state(data):
         state["color_max"],
     )
 
-# @callback(
-#     Input("upload_data", "contents")
-# )
-# def load_data(data):
-#     tpe, string = data.split(",")
-#     decoded = base64.b64decode(string).decode("utf-8")
-#     with open("tmp.csv", "w") as f:
-#         f.write(decoded)
-#     # return PlotData("tmp.csv")
-#     print(PlotData("tmp.csv").df)
+
+# # @callback(
+# #     Input("upload_data", "contents")
+# # )
+# # def load_data(data):
+# #     tpe, string = data.split(",")
+# #     decoded = base64.b64decode(string).decode("utf-8")
+# #     with open("tmp.csv", "w") as f:
+# #         f.write(decoded)
+# #     # return PlotData("tmp.csv")
+# #     print(PlotData("tmp.csv").df)
