@@ -8,13 +8,13 @@ from loguru import logger
 
 
 class PlotData:
-    def __init__(self):
-        p = Path("data/sample.csv")
+    def __init__(self, path):
+        p = Path(path)
         if p.exists():
             self.df = pd.read_csv(p)
         else:
             np.random.seed(1)
-            Q1 = np.arange(1, 201)
+            Q1 = np.arange(1, 201, 0.5)
             Q2 = Q1 ** np.sqrt(2 + np.random.normal(1, 0.1, Q1.shape))
             Q3 = np.random.choice([100, 200, 300, 400, 500], Q1.shape)
             Q4 = np.log(Q3 * np.random.normal(1, 0.2, Q3.shape)) * np.log(Q2)
@@ -24,11 +24,36 @@ class PlotData:
             )
             self.df.to_csv(p, index=False)
 
-    def subplots(self, rows, cols, x, y, color, figsize):
+    def subplots(self, 
+                 rows, 
+                 cols, 
+                 x, 
+                 y, 
+                 color, 
+                 figsize,
+                 x_min,
+                 x_max,
+                 y_min,
+                 y_max,
+                 color_min,
+                 color_max,
+                 ):
         """
         rows = ('Q5', [1100, 1200, 1300, 1400])
         cols = ('Q3', [100, 200, 300, 400])
         """
+        if x_min is None:
+            x_min = -np.inf
+        if x_max is None:
+            x_max = np.inf
+        if y_min is None:
+            y_min = -np.inf
+        if y_max is None:
+            y_max = np.inf
+        if color_min is None:
+            color_min = -np.inf
+        if color_max is None:
+            color_max = np.inf
         rowname = rows[0]
         colname = cols[0]
         nrows, ncols = len(rows[1]), len(cols[1])
@@ -43,7 +68,14 @@ class PlotData:
             row_titles=[f"{rowname}={rows[1][r]}" for r in range(nrows)],
         )
         logger.info("figsize=({}, {})", nrows, ncols)
-        df = self.df.copy()
+        df = self.df[
+            (self.df[x] < x_max)
+            & (self.df[x] > x_min)
+            & (self.df[y] < y_max)
+            & (self.df[y] > y_min)
+            & (self.df[color] < color_max)
+            & (self.df[color] > color_min)
+            ]
         for row, col in product(range(1, nrows + 1), range(1, ncols + 1)):
             rowval = rows[1][row - 1]
             colval = cols[1][col - 1]
@@ -52,6 +84,7 @@ class PlotData:
                 go.Scatter(
                     x=_df[x],
                     y=_df[y],
+                    customdata=_df.index,
                     mode="markers",
                     marker=dict(
                         size=10,
@@ -70,11 +103,13 @@ class PlotData:
 
         fig.update_layout(
             coloraxis=dict(colorscale="Viridis"),
+            coloraxis_colorbar=dict(title=color),
             showlegend=False,
             width=figsize[0],
             height=figsize[1],
+            dragmode="lasso",
         )
         return fig
 
 
-sample = PlotData()
+sample = PlotData("data/samples.csv")

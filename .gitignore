@@ -1,3 +1,7 @@
+*.csv
+*.json
+*.ipynb
+uv.lock
 # Python-generated files
 __pycache__/
 *.py[oc]

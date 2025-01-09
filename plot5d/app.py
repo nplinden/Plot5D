@@ -1,17 +1,53 @@
 from .server import app
-from dash import html, dcc
+from dash import html, dcc, dash_table
 import dash_bootstrap_components as dbc
 from plot5d.plotdata import sample
 from plot5d.callbacks import *
+
+table = dash_table.DataTable(
+    id="table",
+    page_current=0,
+    page_size=12,
+    page_action="custom",
+    style_cell={"fontSize": 20, "font-familiy": "monospace"},
+    sort_action="custom",
+    sort_mode="single",
+    sort_by=[],
+    tooltip_duration=None,
+)
 
 columns = list(sample.df.columns)
 
 app.layout = html.Div(
     [
         html.H1("Plot5D"),
-        html.H3("Plot Size"),
-        dcc.Input(id="x_size", type="number", value=800, step=50, placeholder="X Size"),
-        dcc.Input(id="y_size", type="number", value=800, step=50, placeholder="Y Size"),
+        dcc.Upload(
+            id='load_state',
+            children=html.Div([
+                'Drag and Drop or ',
+                html.A('Select Files')
+            ]),
+            style={
+                'width': '100%',
+                'height': '60px',
+                'lineHeight': '60px',
+                'borderWidth': '1px',
+                'borderStyle': 'dashed',
+                'borderRadius': '5px',
+                'textAlign': 'center',
+                'margin': '10px'
+            },
+            # Allow multiple files to be uploaded
+            multiple=False
+        ),
+        dbc.Row(
+            [
+                dbc.Col(html.P("X size:")),
+                dbc.Col(dcc.Input(id="x_size", type="number", value=800, step=50, placeholder="X Size")),
+                dbc.Col(html.P("Y size:")),
+                dbc.Col(dcc.Input(id="y_size", type="number", value=800, step=50, placeholder="Y Size")),
+            ]
+        ),
         dbc.Row(
             [
                 dbc.Col(html.H3("Row QOI")),
@@ -40,6 +76,25 @@ app.layout = html.Div(
                 dbc.Col(dcc.Dropdown(columns, id="color_dropdown")),
             ],
         ),
+        dbc.Row(
+            [
+                dbc.Col(html.P("Min: ")),
+                dbc.Col(dcc.Input(id="x_min", type="number")),
+                dbc.Col(html.P("Max: ")),
+                dbc.Col(dcc.Input(id="x_max", type="number")),
+                dbc.Col(html.P("Min: ")),
+                dbc.Col(dcc.Input(id="y_min", type="number")),
+                dbc.Col(html.P("Max: ")),
+                dbc.Col(dcc.Input(id="y_max", type="number")),
+                dbc.Col(html.P("Min: ")),
+                dbc.Col(dcc.Input(id="color_min", type="number")),
+                dbc.Col(html.P("Max: ")),
+                dbc.Col(dcc.Input(id="color_max", type="number")),
+            ],
+        ),
+        html.Button("Save State", id="btn-download-txt"),
+        dcc.Download(id="download-text"),
         dcc.Graph(id="5DPlot"),
+        table,
     ]
 )
