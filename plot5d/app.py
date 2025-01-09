@@ -40,12 +40,12 @@ app.layout = html.Div(
             # Allow multiple files to be uploaded
             multiple=False
         ),
-        dbc.Row(
-            [
-                dbc.Col(html.P("X size:")),
-                dbc.Col(dcc.Input(id="x_size", type="number", value=800, step=50, placeholder="X Size")),
-                dbc.Col(html.P("Y size:")),
-                dbc.Col(dcc.Input(id="y_size", type="number", value=800, step=50, placeholder="Y Size")),
+        html.Div(
+            children = [
+                html.P("X size ",  style={'display': 'inline-block', "margin": "10px"}),
+                dcc.Input(id="x_size", type="number", value=1200, step=50, placeholder="X Size",  style={'display': 'inline-block', "margin": "10px"}),
+                html.P("Y size:",  style={'display': 'inline-block', "margin": "10px"}),
+                dcc.Input(id="y_size", type="number", value=1200, step=50, placeholder="Y Size",  style={'display': 'inline-block'}),
             ]
         ),
         dbc.Row(
