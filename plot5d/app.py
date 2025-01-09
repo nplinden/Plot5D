@@ -6,6 +6,25 @@ from plot5d.callbacks import *
 from plot5d.components.textbox import textbox
 from plot5d.components.menu import menu
 
+import plotly.express as px
+
+df = px.data.iris()
+print(df)
+parcoords = px.parallel_coordinates(
+    df,
+    color="species_id",
+    labels={
+        "species_id": "Species",
+        "sepal_width": "Sepal Width",
+        "sepal_length": "Sepal Length",
+        "petal_width": "Petal Width",
+        "petal_length": "Petal Length",
+    },
+    color_continuous_scale=px.colors.diverging.Tealrose,
+    color_continuous_midpoint=2,
+)
+
+
 table = dash_table.DataTable(
     id="table",
     page_current=0,
@@ -37,10 +56,7 @@ color_max = dcc.Input(id="color_max", type="number", placeholder="Max", classNam
 core = dbc.Container(
     [
         dbc.Row(
-            textbox(
-                "An app to explore your favourite DataFrames",
-                "Plot5D by Nicolas Linden",
-            ),
+            textbox("An app to explore your favourite DataFrames", "Plot5D by Nicolas Linden"),
             className="textbox-container",
         ),
         dcc.Upload(
@@ -51,16 +67,8 @@ core = dbc.Container(
         ),
         dbc.Row(
             [
-                menu(
-                    "Row Quantity",
-                    components=[row_dropdown, row_val_dropdown],
-                    col=True,
-                ),
-                menu(
-                    "Column Quantity",
-                    components=[col_dropdown, col_val_dropdown],
-                    col=True,
-                ),
+                menu("Row Quantity", components=[row_dropdown, row_val_dropdown], col=True),
+                menu("Column Quantity", components=[col_dropdown, col_val_dropdown], col=True),
             ]
         ),
         dbc.Row(
@@ -90,6 +98,12 @@ core = dbc.Container(
             html.Div(
                 [table],
                 className="table-div",
+            )
+        ),
+        dbc.Row(
+            html.Div(
+                dcc.Graph(id="parcoords", className="graph"),
+                className="graph-div",
             )
         ),
     ]

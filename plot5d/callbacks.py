@@ -1,7 +1,8 @@
-from dash import callback, Output, Input, State
+from dash import callback, Output, Input, State, no_update
 from dash.exceptions import PreventUpdate
 from plot5d.plotdata import sample
 from loguru import logger
+import plotly.express as px
 import json
 import base64
 
@@ -46,6 +47,8 @@ def update_col_val_dropdown(col_dropdown, data):
 
 @callback(
     Output("5DPlot", "figure"),
+    Output("5DPlot", "selectedData"),
+    Output("5DPlot", "relayoutData"),
     Input("row_dropdown", "value"),
     Input("row_val_dropdown", "value"),
     Input("col_dropdown", "value"),
@@ -59,6 +62,7 @@ def update_col_val_dropdown(col_dropdown, data):
     Input("y_max", "value"),
     Input("color_min", "value"),
     Input("color_max", "value"),
+    State("load_state", "contents"),
 )
 def update_5dplot(
     row_dropdown,
@@ -74,6 +78,7 @@ def update_5dplot(
     y_max,
     color_min,
     color_max,
+    upload_content,
 ):
     logger.info("row_dropdown={}", row_dropdown)
     logger.info("row_val_dropdown={}", row_val_dropdown)
@@ -92,7 +97,7 @@ def update_5dplot(
         color_dropdown,
     ]:
         raise PreventUpdate
-    return sample.subplots(
+    graph = sample.subplots(
         rows=(row_dropdown, row_val_dropdown),
         cols=(col_dropdown, col_val_dropdown),
         x=x_dropdown,
@@ -105,6 +110,18 @@ def update_5dplot(
         color_min=color_min,
         color_max=color_max,
     )
+    if upload_content is None:
+        selected_data = no_update
+        relayout_data = no_update
+    else:
+        _, string = upload_content.split(",")
+        decoded = base64.b64decode(string).decode("utf-8")
+        state = json.loads(decoded)
+        selected_data = state["selected_data"]
+        relayout_data = state["relayout_data"]
+    print(selected_data)
+    print(relayout_data)
+    return graph, selected_data, relayout_data
 
 
 @callback(
@@ -122,8 +139,6 @@ def select_data(selected, page_current, page_size):
         raise PreventUpdate
     idx = [d["customdata"] for d in selected["points"]]
     df = sample.df.iloc[idx]
-    print(df)
-    print(len(df))
     page_count = len(df) // page_size + 1
     if len(df) > 0 and len(df) % page_size == 0:
         page_count -= 1
@@ -148,6 +163,8 @@ def select_data(selected, page_current, page_size):
     State("y_max", "value"),
     State("color_min", "value"),
     State("color_max", "value"),
+    State("5DPlot", "selectedData"),
+    State("5DPlot", "relayoutData"),
     prevent_initial_call=True,
 )
 def save_state(
@@ -165,6 +182,8 @@ def save_state(
     y_max,
     color_min,
     color_max,
+    selected_data,
+    relayout_data,
 ):
     state = {
         "row_dropdown": row_dropdown,
@@ -180,6 +199,8 @@ def save_state(
         "y_max": y_max,
         "color_min": color_min,
         "color_max": color_max,
+        "selected_data": selected_data,
+        "relayout_data": relayout_data,
     }
     return dict(content=json.dumps(state, indent=2), filename="state.json")
 
@@ -219,13 +240,22 @@ def load_state(data):
     )
 
 
-# # @callback(
-# #     Input("upload_data", "contents")
-# # )
-# # def load_data(data):
-# #     tpe, string = data.split(",")
-# #     decoded = base64.b64decode(string).decode("utf-8")
-# #     with open("tmp.csv", "w") as f:
-# #         f.write(decoded)
-# #     # return PlotData("tmp.csv")
-# #     print(PlotData("tmp.csv").df)
+@callback(
+    Output("parcoords", "figure"),
+    Input("5DPlot", "selectedData"),
+)
+def select_data(selected):
+    if selected is None:
+        raise PreventUpdate
+    idx = [d["customdata"] for d in selected["points"]]
+    df = sample.df.iloc[idx]
+    print(df)
+    print(len(df))
+
+    parcoords = px.parallel_coordinates(
+        df,
+        labels={k: k for k in df.columns},
+    )
+    return parcoords
+
+    # df.to_dict("records"), [{"name": c, "id": c} for c in df.columns]
