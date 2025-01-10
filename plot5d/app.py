@@ -1,4 +1,4 @@
-from .server import app
+from .server import app, server
 from dash import html, dcc, dash_table
 import dash_bootstrap_components as dbc
 from plot5d.plotdata import sample
