@@ -3,6 +3,27 @@ from dash import html, dcc, dash_table
 import dash_bootstrap_components as dbc
 from plot5d.plotdata import sample
 from plot5d.callbacks import *
+from plot5d.components.textbox import textbox
+from plot5d.components.menu import menu
+
+import plotly.express as px
+
+df = px.data.iris()
+print(df)
+parcoords = px.parallel_coordinates(
+    df,
+    color="species_id",
+    labels={
+        "species_id": "Species",
+        "sepal_width": "Sepal Width",
+        "sepal_length": "Sepal Length",
+        "petal_width": "Petal Width",
+        "petal_length": "Petal Length",
+    },
+    color_continuous_scale=px.colors.diverging.Tealrose,
+    color_continuous_midpoint=2,
+)
+
 
 table = dash_table.DataTable(
     id="table",
@@ -18,83 +39,74 @@ table = dash_table.DataTable(
 
 columns = list(sample.df.columns)
 
-app.layout = html.Div(
+row_dropdown = dcc.Dropdown(columns, id="row_dropdown", className="dropdown")
+row_val_dropdown = dcc.Dropdown([], id="row_val_dropdown", multi=True, className="dropdown")
+col_dropdown = dcc.Dropdown(columns, id="col_dropdown", className="dropdown")
+col_val_dropdown = dcc.Dropdown([], id="col_val_dropdown", multi=True, className="dropdown")
+x_dropdown = dcc.Dropdown(columns, id="x_dropdown", className="dropdown")
+y_dropdown = dcc.Dropdown(columns, id="y_dropdown", className="dropdown")
+color_dropdown = dcc.Dropdown(columns, id="color_dropdown", className="dropdown")
+x_min = dcc.Input(id="x_min", type="number", placeholder="Min", className="input")
+x_max = dcc.Input(id="x_max", type="number", placeholder="Max", className="input")
+y_min = dcc.Input(id="y_min", type="number", placeholder="Min", className="input")
+y_max = dcc.Input(id="y_max", type="number", placeholder="Max", className="input")
+color_min = dcc.Input(id="color_min", type="number", placeholder="Min", className="input")
+color_max = dcc.Input(id="color_max", type="number", placeholder="Max", className="input")
+
+core = dbc.Container(
     [
-        html.H1("Plot5D"),
-        dcc.Upload(
-            id='load_state',
-            children=html.Div([
-                'Drag and Drop or ',
-                html.A('Select Files')
-            ]),
-            style={
-                'width': '100%',
-                'height': '60px',
-                'lineHeight': '60px',
-                'borderWidth': '1px',
-                'borderStyle': 'dashed',
-                'borderRadius': '5px',
-                'textAlign': 'center',
-                'margin': '10px'
-            },
-            # Allow multiple files to be uploaded
-            multiple=False
+        dbc.Row(
+            textbox("An app to explore your favourite DataFrames", "Plot5D by Nicolas Linden"),
+            className="textbox-container",
         ),
-        html.Div(
-            children = [
-                html.P("X size ",  style={'display': 'inline-block', "margin": "10px"}),
-                dcc.Input(id="x_size", type="number", value=1200, step=50, placeholder="X Size",  style={'display': 'inline-block', "margin": "10px"}),
-                html.P("Y size:",  style={'display': 'inline-block', "margin": "10px"}),
-                dcc.Input(id="y_size", type="number", value=1200, step=50, placeholder="Y Size",  style={'display': 'inline-block'}),
+        dcc.Upload(
+            id="load_state",
+            children=html.Div("Upload state file"),
+            className="upload",
+            multiple=False,
+        ),
+        dbc.Row(
+            [
+                menu("Row Quantity", components=[row_dropdown, row_val_dropdown], col=True),
+                menu("Column Quantity", components=[col_dropdown, col_val_dropdown], col=True),
             ]
         ),
         dbc.Row(
             [
-                dbc.Col(html.H3("Row QOI")),
-                dbc.Col(html.H3("Column QOI")),
-            ],
+                menu("X Axis Quantity", components=[x_dropdown, x_max, x_min], col=True),
+                menu("Y Axis Quantity", components=[y_dropdown, y_min, y_max], col=True),
+                menu(
+                    "Color Axis Quantity",
+                    components=[color_dropdown, color_min, color_max],
+                    col=True,
+                ),
+            ]
         ),
         dbc.Row(
             [
-                dbc.Col(dcc.Dropdown(columns, id="row_dropdown")),
-                dbc.Col(dcc.Dropdown([], id="row_val_dropdown", multi=True)),
-                dbc.Col(dcc.Dropdown(columns, id="col_dropdown")),
-                dbc.Col(dcc.Dropdown([], id="col_val_dropdown", multi=True)),
-            ],
+                html.Button("Save State", id="btn-download-txt", className="upload"),
+                dcc.Download(id="download-text"),
+            ]
         ),
         dbc.Row(
-            [
-                dbc.Col(html.H3("X axis QOI")),
-                dbc.Col(html.H3("Y axis QOI")),
-                dbc.Col(html.H3("Color QOI")),
-            ],
+            html.Div(
+                dcc.Graph(id="5DPlot", className="graph"),
+                className="graph-div",
+            )
         ),
         dbc.Row(
-            [
-                dbc.Col(dcc.Dropdown(columns, id="x_dropdown")),
-                dbc.Col(dcc.Dropdown(columns, id="y_dropdown")),
-                dbc.Col(dcc.Dropdown(columns, id="color_dropdown")),
-            ],
+            html.Div(
+                [table],
+                className="table-div",
+            )
         ),
         dbc.Row(
-            [
-                dbc.Col(html.P("Min: ")),
-                dbc.Col(dcc.Input(id="x_min", type="number")),
-                dbc.Col(html.P("Max: ")),
-                dbc.Col(dcc.Input(id="x_max", type="number")),
-                dbc.Col(html.P("Min: ")),
-                dbc.Col(dcc.Input(id="y_min", type="number")),
-                dbc.Col(html.P("Max: ")),
-                dbc.Col(dcc.Input(id="y_max", type="number")),
-                dbc.Col(html.P("Min: ")),
-                dbc.Col(dcc.Input(id="color_min", type="number")),
-                dbc.Col(html.P("Max: ")),
-                dbc.Col(dcc.Input(id="color_max", type="number")),
-            ],
+            html.Div(
+                dcc.Graph(id="parcoords", className="graph"),
+                className="graph-div",
+            )
         ),
-        html.Button("Save State", id="btn-download-txt"),
-        dcc.Download(id="download-text"),
-        dcc.Graph(id="5DPlot"),
-        table,
     ]
 )
+
+app.layout = html.Div(children=[core])

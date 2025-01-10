@@ -12,3 +12,6 @@ dependencies = [
     "numpy>=2.2.1",
     "pandas>=2.2.3",
 ]
+
+[tool.ruff]
+line-length = 100
