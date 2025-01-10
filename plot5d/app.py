@@ -56,7 +56,7 @@ core = dbc.Container(
         ),
         dbc.Row(
             [
-                menu("X Axis Quantity", components=[x_dropdown, x_max, x_min], col=True),
+                menu("X Axis Quantity", components=[x_dropdown, x_min, x_max], col=True),
                 menu("Y Axis Quantity", components=[y_dropdown, y_min, y_max], col=True),
                 menu(
                     "Color Axis Quantity",
@@ -79,14 +79,19 @@ core = dbc.Container(
         ),
         dbc.Row(
             html.Div(
-                [table_dropdown, table],
-                className="table-div",
+                [
+                    parcoord_dropdown,
+                    dcc.Store(id="parcoords_dropdown_memory", storage_type="memory"),
+                    dcc.Store(id="parcoords_memory", storage_type="memory"),
+                    dcc.Graph(id="parcoords", className="graph", style={"height": "90%"}),
+                ],
+                className="graph-div",
             )
         ),
         dbc.Row(
             html.Div(
-                [parcoord_dropdown, dcc.Graph(id="parcoords", className="graph")],
-                className="graph-div",
+                [table_dropdown, table],
+                className="table-div",
             )
         ),
     ]
