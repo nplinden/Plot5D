@@ -6,25 +6,6 @@ from plot5d.callbacks import *
 from plot5d.components.textbox import textbox
 from plot5d.components.menu import menu
 
-import plotly.express as px
-
-df = px.data.iris()
-print(df)
-parcoords = px.parallel_coordinates(
-    df,
-    color="species_id",
-    labels={
-        "species_id": "Species",
-        "sepal_width": "Sepal Width",
-        "sepal_length": "Sepal Length",
-        "petal_width": "Petal Width",
-        "petal_length": "Petal Length",
-    },
-    color_continuous_scale=px.colors.diverging.Tealrose,
-    color_continuous_midpoint=2,
-)
-
-
 table = dash_table.DataTable(
     id="table",
     page_current=0,
@@ -52,6 +33,8 @@ y_min = dcc.Input(id="y_min", type="number", placeholder="Min", className="input
 y_max = dcc.Input(id="y_max", type="number", placeholder="Max", className="input")
 color_min = dcc.Input(id="color_min", type="number", placeholder="Min", className="input")
 color_max = dcc.Input(id="color_max", type="number", placeholder="Max", className="input")
+table_dropdown = dcc.Dropdown(columns, id="column_dropdown", className="dropdown", multi=True)
+parcoord_dropdown = dcc.Dropdown(columns, id="parcoord_dropdown", className="dropdown", multi=True)
 
 core = dbc.Container(
     [
@@ -96,13 +79,13 @@ core = dbc.Container(
         ),
         dbc.Row(
             html.Div(
-                [table],
+                [table_dropdown, table],
                 className="table-div",
             )
         ),
         dbc.Row(
             html.Div(
-                dcc.Graph(id="parcoords", className="graph"),
+                [parcoord_dropdown, dcc.Graph(id="parcoords", className="graph")],
                 className="graph-div",
             )
         ),

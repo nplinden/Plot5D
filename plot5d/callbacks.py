@@ -132,18 +132,21 @@ def update_5dplot(
     ],
     Input("5DPlot", "selectedData"),
     Input("table", "page_current"),
+    Input("column_dropdown", "value"),
     State("table", "page_size"),
 )
-def select_data(selected, page_current, page_size):
+def select_data(selected, page_current, column_dropdown, page_size):
     if selected is None:
+        raise PreventUpdate
+    if column_dropdown is None:
         raise PreventUpdate
     idx = [d["customdata"] for d in selected["points"]]
     df = sample.df.iloc[idx]
     page_count = len(df) // page_size + 1
     if len(df) > 0 and len(df) % page_size == 0:
         page_count -= 1
+    df = df[column_dropdown]
     df = df.iloc[page_current * page_size : (page_current + 1) * page_size]
-
     return df.to_dict("records"), [{"name": c, "id": c} for c in df.columns], page_count
 
 
@@ -243,19 +246,24 @@ def load_state(data):
 @callback(
     Output("parcoords", "figure"),
     Input("5DPlot", "selectedData"),
+    Input("parcoord_dropdown", "value"),
 )
-def select_data(selected):
+def select_data(selected, parcoord_dropdown):
+    if parcoord_dropdown is None:
+        raise PreventUpdate
     if selected is None:
         raise PreventUpdate
+
     idx = [d["customdata"] for d in selected["points"]]
     df = sample.df.iloc[idx]
     print(df)
     print(len(df))
 
+    columns = {k: k for k in parcoord_dropdown}
+    print(columns)
+
     parcoords = px.parallel_coordinates(
-        df,
-        labels={k: k for k in df.columns},
+        df[parcoord_dropdown],
+        labels=columns,
     )
     return parcoords
-
-    # df.to_dict("records"), [{"name": c, "id": c} for c in df.columns]

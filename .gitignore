@@ -1,6 +1,7 @@
 *.csv
 *.json
 *.ipynb
+data/*
 uv.lock
 # Python-generated files
 __pycache__/

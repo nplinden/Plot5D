@@ -80,7 +80,7 @@ class PlotData:
             colval = cols[1][col - 1]
             _df = df[(df[rowname] == rowval) & (df[colname] == colval)]
             fig.add_trace(
-                go.Scatter(
+                go.Scattergl(
                     x=_df[x],
                     y=_df[y],
                     customdata=_df.index,
