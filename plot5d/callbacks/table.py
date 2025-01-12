@@ -28,7 +28,7 @@ def select_data_for_table(
     page_count = len(df) // page_size + 1
     if len(df) > 0 and len(df) % page_size == 0:
         page_count -= 1
-    
+
     if parcoords_memory and parcoords_dropdown_memory:
         for col_idx, ranges in parcoords_memory.items():
             col_name = parcoords_dropdown_memory[col_idx]

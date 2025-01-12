@@ -67,15 +67,19 @@ core = dbc.Container(
         ),
         dbc.Row(
             [
-                html.Button("Save State", id="btn-download-txt", className="upload"),
+                html.Div(
+                    children=html.Button("Save State", id="btn-download-txt", className="upload"),
+                ),
                 dcc.Download(id="download-text"),
             ]
         ),
         dbc.Row(
-            html.Div(
-                dcc.Graph(id="5DPlot", className="graph"),
-                className="graph-div",
-            )
+            [
+                html.Div(
+                    dcc.Graph(id="5DPlot", className="graph"),
+                    className="graph-div",
+                )
+            ]
         ),
         dbc.Row(
             html.Div(
