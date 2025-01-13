@@ -1,10 +1,18 @@
-from .server import app, server
+from .server import app
 from dash import html, dcc, dash_table
 import dash_bootstrap_components as dbc
 from plot5d.plotdata import sample
-from plot5d.callbacks import *
+from plot5d.callbacks.graph import define_graph_callbacks
+from plot5d.callbacks.menus import define_menu_callbacks
+from plot5d.callbacks.parcoords import define_parcoords_callbacks
+from plot5d.callbacks.table import define_table_callbacks
 from plot5d.components.textbox import textbox
 from plot5d.components.menu import menu
+
+define_graph_callbacks(app)
+define_menu_callbacks(app)
+define_parcoords_callbacks(app)
+define_table_callbacks(app)
 
 table = dash_table.DataTable(
     id="table",
