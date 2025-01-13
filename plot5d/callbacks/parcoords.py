@@ -1,4 +1,4 @@
-from dash import callback, Output, Input, State, no_update
+from dash import Output, Input, State
 from dash.exceptions import PreventUpdate
 from plot5d.plotdata import sample
 import re

@@ -4,7 +4,6 @@ from pathlib import Path
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 from itertools import product
-from pathlib import Path
 
 
 class PlotData:
