@@ -24,6 +24,11 @@ def define_graph_callbacks(app):
         Input("y_max", "value"),
         Input("color_min", "value"),
         Input("color_max", "value"),
+        Input("row_dropdown_title", "value"),
+        Input("col_dropdown_title", "value"),
+        Input("x_dropdown_title", "value"),
+        Input("y_dropdown_title", "value"),
+        Input("color_dropdown_title", "value"),
         State("load_state", "contents"),
     )
     def update_5dplot(
@@ -40,6 +45,11 @@ def define_graph_callbacks(app):
         y_max,
         color_min,
         color_max,
+        row_title,
+        col_title,
+        x_title,
+        y_title,
+        color_title,
         upload_content,
     ):
         logger.info("row_dropdown={}", row_dropdown)
@@ -49,11 +59,13 @@ def define_graph_callbacks(app):
         logger.info("x_dropdown={}", x_dropdown)
         logger.info("y_dropdown={}", y_dropdown)
         logger.info("color_dropdown={}", color_dropdown)
+        logger.info("row_title={}", row_title)
+        logger.info("col_title={}", col_title)
+        logger.info("x_title={}", x_title)
+        logger.info("y_title={}", y_title)
+        logger.info("color_title={}", color_title)
+
         if None in [
-            row_dropdown,
-            row_val_dropdown,
-            col_dropdown,
-            col_val_dropdown,
             x_dropdown,
             y_dropdown,
             color_dropdown,
@@ -71,6 +83,11 @@ def define_graph_callbacks(app):
             y_max=y_max,
             color_min=color_min,
             color_max=color_max,
+            row_title=row_title,
+            col_title=col_title,
+            x_title=x_title,
+            y_title=y_title,
+            color_title=color_title,
         )
         if upload_content is None:
             selected_data = no_update

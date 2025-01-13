@@ -30,11 +30,26 @@ columns = list(sample.df.columns)
 
 row_dropdown = dcc.Dropdown(columns, id="row_dropdown", className="dropdown")
 row_val_dropdown = dcc.Dropdown([], id="row_val_dropdown", multi=True, className="dropdown")
+row_dropdown_title = dcc.Checklist(
+    [" Display title"], [" Display title"], id="row_dropdown_title", style={"text-align": "right"}
+)
 col_dropdown = dcc.Dropdown(columns, id="col_dropdown", className="dropdown")
 col_val_dropdown = dcc.Dropdown([], id="col_val_dropdown", multi=True, className="dropdown")
+col_dropdown_title = dcc.Checklist(
+    [" Display title"], [" Display title"], id="col_dropdown_title", style={"text-align": "right"}
+)
 x_dropdown = dcc.Dropdown(columns, id="x_dropdown", className="dropdown")
+x_dropdown_title = dcc.Checklist(
+    [" Display title"], [" Display title"], id="x_dropdown_title", style={"text-align": "right"}
+)
 y_dropdown = dcc.Dropdown(columns, id="y_dropdown", className="dropdown")
+y_dropdown_title = dcc.Checklist(
+    [" Display title"], [" Display title"], id="y_dropdown_title", style={"text-align": "right"}
+)
 color_dropdown = dcc.Dropdown(columns, id="color_dropdown", className="dropdown")
+color_dropdown_title = dcc.Checklist(
+    [" Display title"], [" Display title"], id="color_dropdown_title", style={"text-align": "right"}
+)
 x_min = dcc.Input(id="x_min", type="number", placeholder="Min", className="input")
 x_max = dcc.Input(id="x_max", type="number", placeholder="Max", className="input")
 y_min = dcc.Input(id="y_min", type="number", placeholder="Min", className="input")
@@ -58,17 +73,39 @@ core = dbc.Container(
         ),
         dbc.Row(
             [
-                menu("Row Quantity", components=[row_dropdown, row_val_dropdown], col=True),
-                menu("Column Quantity", components=[col_dropdown, col_val_dropdown], col=True),
+                dbc.Col(
+                    html.Div(
+                        [
+                            html.Div("Row Quantity", className="menu-title"),
+                            row_dropdown,
+                            row_val_dropdown,
+                            row_dropdown_title,
+                        ],
+                        className="menu-div",
+                    ),
+                    className="col-menu",
+                ),
+                dbc.Col(
+                    html.Div(
+                        [
+                            html.Div("Column Quantity", className="menu-title"),
+                            col_dropdown,
+                            col_val_dropdown,
+                            col_dropdown_title,
+                        ],
+                        className="menu-div",
+                    ),
+                    className="col-menu",
+                ),
             ]
         ),
         dbc.Row(
             [
-                menu("X Axis Quantity", components=[x_dropdown, x_min, x_max], col=True),
-                menu("Y Axis Quantity", components=[y_dropdown, y_min, y_max], col=True),
+                menu("X Axis Quantity", components=[x_dropdown, x_min, x_max, x_dropdown_title], col=True),
+                menu("Y Axis Quantity", components=[y_dropdown, y_min, y_max, y_dropdown_title], col=True),
                 menu(
                     "Color Axis Quantity",
-                    components=[color_dropdown, color_min, color_max],
+                    components=[color_dropdown, color_min, color_max, color_dropdown_title],
                     col=True,
                 ),
             ]

@@ -28,13 +28,17 @@ class PlotData:
         x,
         y,
         color,
-        #  figsize,
         x_min,
         x_max,
         y_min,
         y_max,
         color_min,
         color_max,
+        row_title,
+        col_title,
+        x_title,
+        y_title,
+        color_title,
     ):
         """
         rows = ('Q5', [1100, 1200, 1300, 1400])
@@ -52,9 +56,29 @@ class PlotData:
             color_min = -np.inf
         if color_max is None:
             color_max = np.inf
-        rowname = rows[0]
-        colname = cols[0]
-        nrows, ncols = len(rows[1]), len(cols[1])
+
+        if None in rows or rows[1] == []:
+            rowname = None
+            nrows = 1
+            row_titles = [""]
+        else:
+            rowname, nrows = rows[0], len(rows[1])
+            if row_title:
+                row_titles = [f"{rowname}={rows[1][r]}" for r in range(nrows)]
+            else:
+                row_titles = [f"{rows[1][r]}" for r in range(nrows)]
+
+        if None in cols or cols[1] == []:
+            colname = None
+            ncols = 1
+            col_titles = [""]
+        else:
+            colname, ncols = cols[0], len(cols[1])
+            if col_title:
+                col_titles = [f"{rowname}={cols[1][r]}" for r in range(ncols)]
+            else:
+                col_titles = [f"{cols[1][r]}" for r in range(ncols)]
+
         fig = make_subplots(
             rows=nrows,
             cols=ncols,
@@ -62,10 +86,9 @@ class PlotData:
             shared_yaxes=True,
             vertical_spacing=0.1,
             horizontal_spacing=0.05,
-            column_titles=[f"{colname}={cols[1][c]}" for c in range(ncols)],
-            row_titles=[f"{rowname}={rows[1][r]}" for r in range(nrows)],
+            column_titles=col_titles,
+            row_titles=row_titles,
         )
-        # logger.info("figsize=({}, {})", nrows, ncols)
         df = self.df[
             (self.df[x] < x_max)
             & (self.df[x] > x_min)
@@ -75,9 +98,14 @@ class PlotData:
             & (self.df[color] > color_min)
         ]
         for row, col in product(range(1, nrows + 1), range(1, ncols + 1)):
-            rowval = rows[1][row - 1]
-            colval = cols[1][col - 1]
-            _df = df[(df[rowname] == rowval) & (df[colname] == colval)]
+            _df = df
+            if rowname is not None:
+                rowval = rows[1][row - 1]
+                _df = _df[_df[rowname] == rowval]
+            if colname is not None:
+                colval = cols[1][col - 1]
+                _df = _df[_df[colname] == colval]
+
             fig.add_trace(
                 go.Scattergl(
                     x=_df[x],
@@ -94,17 +122,20 @@ class PlotData:
                 col=col,
             )
 
-        for col in range(1, ncols + 1):
-            fig.update_xaxes(title_text=x, row=nrows, col=col)
-        for row in range(1, nrows + 1):
-            fig.update_yaxes(title_text=y, row=row, col=1)
+        if x_title:
+            for col in range(1, ncols + 1):
+                fig.update_xaxes(title_text=x, row=nrows, col=col)
+        if y_title:
+            for row in range(1, nrows + 1):
+                fig.update_yaxes(title_text=y, row=row, col=1)
+        coloraxis_kwargs = {}
+        if color_title:
+            coloraxis_kwargs["title"] = color
 
         fig.update_layout(
             coloraxis=dict(colorscale="Viridis"),
-            coloraxis_colorbar=dict(title=color),
+            coloraxis_colorbar=coloraxis_kwargs,
             showlegend=False,
-            # width=figsize[0],
-            # height=figsize[1],
             dragmode="lasso",
         )
         return fig

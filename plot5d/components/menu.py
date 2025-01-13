@@ -14,7 +14,5 @@ def menu(title, components=None, col=False):
             className="col-menu",
         )
     else:
-        menu_component = html.Div(
-            [html.Div(title, className="menu-title"), *components], className="menu-div"
-        )
+        menu_component = html.Div([html.Div(title, className="menu-title"), *components], className="menu-div")
     return menu_component
