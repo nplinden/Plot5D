@@ -4,7 +4,7 @@ from pathlib import Path
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 from itertools import product
-
+from plot5d.cli import parser
 
 class PlotData:
     def __init__(self, path):
@@ -141,7 +141,8 @@ class PlotData:
         return fig
 
 
-datapath = Path("data")
-if not datapath.exists():
-    datapath.mkdir()
-sample = PlotData("data/samples.csv")
+args = parser.parse_args()
+p = Path(args.file)
+if not p.parent.exists():
+    p.parent.mkdir()
+sample = PlotData(p)
