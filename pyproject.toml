@@ -13,5 +13,11 @@ dependencies = [
     "pandas>=2.2.3",
 ]
 
+[project.scripts]
+plot5d = "plot5d.main:main"
+
+[tool.setuptools]
+packages = ["plot5d", "plot5d.callbacks", "plot5d.components"]
+
 [tool.ruff]
 line-length = 120
