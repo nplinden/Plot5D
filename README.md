@@ -1,23 +1,29 @@
 # Plot5D
 
-## Run through Dash
+The easiest way to run Plot5D is to use [uv](https://github.com/astral-sh/uv) and Dash directly.
 
-The easiest way to run Plot5D is to use [uv](https://github.com/astral-sh/uv) and Dash directly:
+To install `uv` on Linux:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Or on Windows:
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Then to run Plot5D
 
 ```sh
 git clone https://github.com/nplinden/Plot5D.git
 cd Plot5D
-uv run main.py
+uv run main.py -f /path/to/csv/file
 ``` 
 
-## Run through Flask
+By default Plot5D will find an unused port to run on.
+You can explicitely set a port using the `-p` argument.
 
-Dash is based on the Flask framework, so you can also run Plot5D like any other Flask app:
 
-```sh
-git clone https://github.com/nplinden/Plot5D.git
-cd Plot5D
-uv venv
-source .venv/bin/activate.sh
-flask run --host 0.0.0.0
-``` 
+
