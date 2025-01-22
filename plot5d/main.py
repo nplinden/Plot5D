@@ -2,10 +2,12 @@ from plot5d.cli import parser
 from plot5d.app import app
 import socket
 
+
 def get_port():
     sock = socket.socket()
-    sock.bind(('', 0))
+    sock.bind(("", 0))
     return sock.getsockname()[1]
+
 
 def main():
     args = parser.parse_args()

@@ -1,9 +1,33 @@
 from .server import app
 from dash import html, dcc, dash_table
 import dash_bootstrap_components as dbc
-from plot5d.callbacks.clientside import define_clientside_callbacks
-from plot5d.components.textbox import textbox
-from plot5d.components.menu import menu
+from plot5d.app import define_clientside_callbacks
+
+
+def menu(title, components=None, col=False):
+    if components is None:
+        components = []
+    if col:
+        menu_component = dbc.Col(
+            html.Div(
+                [html.Div(title, className="menu-title"), *components],
+                className="menu-div",
+            ),
+            className="col-menu",
+        )
+    else:
+        menu_component = html.Div([html.Div(title, className="menu-title"), *components], className="menu-div")
+    return menu_component
+
+
+def textbox(text, title=None):
+    text_component = html.Div(html.Div(text, className="textbox-text"))
+
+    if title is not None:
+        title_component = html.Div(children=title, className="textbox-title")
+
+        return [title_component, text_component]
+    return [text_component]
 
 
 define_clientside_callbacks(app)
@@ -23,24 +47,24 @@ table = dash_table.DataTable(
 row_dropdown = dcc.Dropdown([], id="row_dropdown", className="dropdown")
 row_val_dropdown = dcc.Dropdown([], id="row_val_dropdown", multi=True, className="dropdown")
 row_dropdown_title = dcc.Checklist(
-    [" Display title"], [" Display title"], id="row_dropdown_title", style={"text-align": "right"}
+    [" Display title"], [" Display title"], id="row_dropdown_title", style={"textAlign": "right"}
 )
 col_dropdown = dcc.Dropdown([], id="col_dropdown", className="dropdown")
 col_val_dropdown = dcc.Dropdown([], id="col_val_dropdown", multi=True, className="dropdown")
 col_dropdown_title = dcc.Checklist(
-    [" Display title"], [" Display title"], id="col_dropdown_title", style={"text-align": "right"}
+    [" Display title"], [" Display title"], id="col_dropdown_title", style={"textAlign": "right"}
 )
 x_dropdown = dcc.Dropdown([], id="x_dropdown", className="dropdown")
 x_dropdown_title = dcc.Checklist(
-    [" Display title"], [" Display title"], id="x_dropdown_title", style={"text-align": "right"}
+    [" Display title"], [" Display title"], id="x_dropdown_title", style={"textAlign": "right"}
 )
 y_dropdown = dcc.Dropdown([], id="y_dropdown", className="dropdown")
 y_dropdown_title = dcc.Checklist(
-    [" Display title"], [" Display title"], id="y_dropdown_title", style={"text-align": "right"}
+    [" Display title"], [" Display title"], id="y_dropdown_title", style={"textAlign": "right"}
 )
 color_dropdown = dcc.Dropdown([], id="color_dropdown", className="dropdown")
 color_dropdown_title = dcc.Checklist(
-    [" Display title"], [" Display title"], id="color_dropdown_title", style={"text-align": "right"}
+    [" Display title"], [" Display title"], id="color_dropdown_title", style={"textAlign": "right"}
 )
 x_min = dcc.Input(id="x_min", type="number", placeholder="Min", className="input")
 x_max = dcc.Input(id="x_max", type="number", placeholder="Max", className="input")
@@ -48,7 +72,7 @@ y_min = dcc.Input(id="y_min", type="number", placeholder="Min", className="input
 y_max = dcc.Input(id="y_max", type="number", placeholder="Max", className="input")
 color_min = dcc.Input(id="color_min", type="number", placeholder="Min", className="input")
 color_max = dcc.Input(id="color_max", type="number", placeholder="Max", className="input")
-table_dropdown = dcc.Dropdown([], id="column_dropdown", className="dropdown", multi=True)
+table_dropdown = dcc.Dropdown([], id="table_dropdown", className="dropdown", multi=True)
 parcoord_dropdown = dcc.Dropdown([], id="parcoord_dropdown", className="dropdown", multi=True)
 
 core = dbc.Container(
@@ -146,4 +170,3 @@ core = dbc.Container(
 )
 
 app.layout = html.Div(children=[core])
-
