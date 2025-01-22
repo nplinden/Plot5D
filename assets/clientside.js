@@ -207,6 +207,9 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       const idim = parseInt(
         key.replace("dimensions[", "").replace("].constraintrange", "")
       );
+      if (!restyle_data[0][key]) {
+        return window.dash_clientside.no_update;
+      }
       let ranges = restyle_data[0][key][0];
       if (ranges === null) {
         delete data[idim];
@@ -235,7 +238,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       if (parcoords_dropdown_memory === undefined) {
         return window.dash_clientside.no_update;
       }
-      if (selected === undefined) {
+      if (!selected) {
         return window.dash_clientside.no_update;
       }
       if (table_dropdown === undefined) {
