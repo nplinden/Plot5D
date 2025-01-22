@@ -1,7 +1,7 @@
 from .server import app
 from dash import html, dcc, dash_table
 import dash_bootstrap_components as dbc
-from plot5d.app import define_clientside_callbacks
+from plot5d.callbacks import define_clientside_callbacks
 
 
 def menu(title, components=None, col=False):
