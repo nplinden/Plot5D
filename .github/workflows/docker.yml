@@ -27,7 +27,7 @@ jobs:
         # i.e.: release/1.0.0 -> 1.0.0
         id: strip-branch-name
         run: |
-          release_version=$(echo "${{ github.ref }}" | sed 's/refs\/heads\/.*\///')
+          release_version=$(echo "${{ github.ref }}")
           echo "Building release version $release_version"
           echo "RELEASE_VERSION=$release_version" >> $GITHUB_ENV
           shell: bash
