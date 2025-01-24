@@ -1,40 +1,30 @@
-name: Build Docker image
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# GitHub recommends pinning actions to a commit SHA.
+# To get a newer version, you will need to update the SHA.
+# You can also reference a tag or branch, but the action may change without warning.
+
+name: Publish Docker image
 
 on:
-  # Trigger the action manually from the UI
-  workflow_dispatch:
-  # Trigger the action when I create or push a `release/**` branch
-  push:
-    tags:
-      - "*"
-
-env:
-  DOCKER_IMAGE_NAME: plot5d
-  # DOCKER_REGISTRY_URL: myregistry.domain.com
+  release:
+    types: [published]
 
 jobs:
-  build_docker_images:
-    # Job name that shows in the GitHub UI
-    name: Build Docker Images
-    # Runner to use
+  push_to_registry:
+    name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
-
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
     steps:
-      - name: Checkout
+      - name: Check out the repo
         uses: actions/checkout@v4
-
-      - name: Get the release version
-        # i.e.: release/1.0.0 -> 1.0.0
-        id: strip-branch-name
-        run: |
-          release_version=$(echo "${{ github.ref }}" | sed 's/refs\/tags\///')
-          echo "Building release version $release_version"
-          echo "RELEASE_VERSION=$release_version" >> $GITHUB_ENV
-        shell: bash
-
-      # Build the Docker image
-      - name: Build the Docker image
-        run: docker build --tag $DOCKER_IMAGE_NAME:$RELEASE_VERSION .
 
       - name: Log in to Docker Hub
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
@@ -42,26 +32,25 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-    #     # Tag the Docker Images
-    #   - name: Tag the image for the private registry $DOCKER_REGISTRY_URL
-    #     run: docker tag $DOCKER_IMAGE_NAME:$RELEASE_VERSION $DOCKER_REGISTRY_URL/$DOCKER_IMAGE_NAME:$RELEASE_VERSION
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: nplinden/plot5d
 
-    #   - name: Create a latest image as well
-    #     run: docker tag $DOCKER_IMAGE_NAME:$RELEASE_VERSION $DOCKER_REGISTRY_URL/$DOCKER_IMAGE_NAME:latest
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
-    #   # Push the images to the registry
-    #   - name: Push the Docker image with version number
-    #     run: docker push $DOCKER_REGISTRY_URL/$DOCKER_IMAGE_NAME:$RELEASE_VERSION
-
-    #   - name: Push the latest tag
-    #     run: docker push $DOCKER_REGISTRY_URL/$DOCKER_IMAGE_NAME:latest
-
-    #   # Remove the local images
-    #   - name: Remove the Docker image with version number
-    #     run: docker rmi $DOCKER_REGISTRY_URL/$DOCKER_IMAGE_NAME:$RELEASE_VERSION
-
-    #   - name: Remove the Docker image with latest tag
-    #     run: docker rmi $DOCKER_REGISTRY_URL/$DOCKER_IMAGE_NAME:latest
-
-    #   - name: Remove the local image
-    #     run: docker rmi $DOCKER_IMAGE_NAME:$RELEASE_VERSION
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
