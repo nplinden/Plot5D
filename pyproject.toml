@@ -18,7 +18,7 @@ dependencies = [
 plot5d = "plot5d.main:main"
 
 [tool.setuptools]
-packages = ["plot5d", "plot5d.callbacks", "plot5d.components"]
+packages = ["plot5d"]
 
 [tool.ruff]
 line-length = 120

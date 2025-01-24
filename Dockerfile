@@ -10,7 +10,7 @@ RUN mkdir -p /app/Plot5D && \
 
 RUN chmod a+x /app/Plot5D/run.sh && \
     cd /app/Plot5D && \
-    uv venv --python 3.12
+    uv venv && \
+    uv pip install .
 
-# CMD ["/app/Plot5D/run.sh"]
-ENTRYPOINT ["sh", "/app/Plot5D/run.sh"]
+ENTRYPOINT [ "uv", "run", "--directory", "/app/Plot5D", "/app/Plot5D/main.py" ]
