@@ -4,7 +4,7 @@ import base64
 from io import StringIO
 import pandas as pd
 import json
-import time
+from .sample import sample
 
 
 def define_clientside_callbacks(app):
@@ -23,6 +23,15 @@ def define_clientside_callbacks(app):
         df = pd.read_csv(StringIO(decoded))
         df["index"] = df.index
         return df.to_dict("records"), filename, None
+
+    @app.callback(
+        Output("download-example", "data"),
+        Input("download-example-btn", "n_clicks"),
+    )
+    def download_example(n_clicks):
+        if n_clicks is None:
+            raise PreventUpdate
+        return dict(content=sample, filename="sample.csv")
 
     clientside_callback(
         ClientsideFunction(namespace="clientside", function_name="update_dropdown"),

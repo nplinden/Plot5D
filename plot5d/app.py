@@ -84,6 +84,12 @@ core = dbc.Container(
             ),
             className="textbox-container",
         ),
+        html.Div(
+            children=html.Button("Download Example File", id="download-example-btn", className="upload"),
+        ),
+        dcc.Download(
+            id="download-example",
+        ),
         dcc.Upload(
             id="df_upload",
             children=html.Div("Upload csv file"),
