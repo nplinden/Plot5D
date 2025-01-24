@@ -91,6 +91,7 @@ core = dbc.Container(
             multiple=False,
         ),
         dcc.Store(id="storage", storage_type="memory"),
+        dcc.Loading(id="loading-1", type="default", children=html.Div(id="loading-output-1")),
         dcc.Upload(
             id="load_state",
             children=html.Div("Upload state file"),
