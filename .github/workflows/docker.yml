@@ -1,0 +1,37 @@
+name: Build Docker image
+
+on:
+  # Trigger the action manually from the UI
+  workflow_dispatch:
+  # Trigger the action when I create or push a `release/**` branch
+  push:
+    branches:
+      - "release/**"
+
+# env:
+#   DOCKER_IMAGE_NAME: my-image
+#   DOCKER_REGISTRY_URL: myregistry.domain.com
+
+jobs:
+  build_docker_images:
+    # Job name that shows in the GitHub UI
+    name: Build Docker Images
+    # Runner to use
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # - name: Get the release version
+      #   # i.e.: release/1.0.0 -> 1.0.0
+      #   id: strip-branch-name
+      #   run: |
+      #     release_version=$(echo "${{ github.ref }}" | sed 's/refs\/heads\/.*\///')
+      #     echo "Building release version $release_version"
+      #     echo "RELEASE_VERSION=$release_version" >> $GITHUB_ENV
+      #     shell: bash
+
+      # Build the Docker image
+      - name: Build the Docker image
+        run: docker build .
