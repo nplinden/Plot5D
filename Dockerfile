@@ -9,6 +9,7 @@ RUN mkdir /app && \
     curl -LsSf https://astral.sh/uv/install.sh | sh  && \
     . $HOME/.local/bin/env && \
     git clone https://github.com/nplinden/Plot5D.git && \
+    chmod a+x /app/Plot5D/run.sh && \
     cd Plot5D && \
     uv venv
 
