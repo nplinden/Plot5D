@@ -4,12 +4,14 @@ import base64
 from io import StringIO
 import pandas as pd
 import json
+import time
 
 
 def define_clientside_callbacks(app):
     @app.callback(
         Output("storage", "data"),
         Output("df_upload", "children"),
+        Output("spinner", "children"),
         Input("df_upload", "contents"),
         State("df_upload", "filename"),
     )
@@ -20,7 +22,7 @@ def define_clientside_callbacks(app):
         decoded = base64.b64decode(string).decode("utf-8")
         df = pd.read_csv(StringIO(decoded))
         df["index"] = df.index
-        return df.to_dict("records"), filename
+        return df.to_dict("records"), filename, None
 
     clientside_callback(
         ClientsideFunction(namespace="clientside", function_name="update_dropdown"),
