@@ -1,6 +1,9 @@
-from plot5d.cli import parser
 from plot5d.app import app
 import socket
+import argparse as ap
+
+parser = ap.ArgumentParser(prog="Plot5D", description="A plotting tool for your favorite dataframes")
+parser.add_argument("-p", "--port", help="A port for the debug server", type=int)
 
 
 def get_port():

@@ -78,7 +78,10 @@ parcoord_dropdown = dcc.Dropdown([], id="parcoord_dropdown", className="dropdown
 core = dbc.Container(
     [
         dbc.Row(
-            textbox("An app to explore your favourite DataFrames. Sur une idée originale de Corentin Reiss", "Plot5D by Nicolas Linden"),
+            textbox(
+                "An app to explore your favourite DataFrames. Sur une idée originale de Corentin Reiss",
+                "Plot5D by Nicolas Linden",
+            ),
             className="textbox-container",
         ),
         dcc.Upload(
