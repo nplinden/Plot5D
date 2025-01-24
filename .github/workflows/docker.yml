@@ -7,11 +7,10 @@ on:
   push:
     branches:
       - "release/**"
-      - "main"
 
-# env:
-#   DOCKER_IMAGE_NAME: my-image
-#   DOCKER_REGISTRY_URL: myregistry.domain.com
+env:
+  DOCKER_IMAGE_NAME: plot5d
+  # DOCKER_REGISTRY_URL: myregistry.domain.com
 
 jobs:
   build_docker_images:
@@ -24,15 +23,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # - name: Get the release version
-      #   # i.e.: release/1.0.0 -> 1.0.0
-      #   id: strip-branch-name
-      #   run: |
-      #     release_version=$(echo "${{ github.ref }}" | sed 's/refs\/heads\/.*\///')
-      #     echo "Building release version $release_version"
-      #     echo "RELEASE_VERSION=$release_version" >> $GITHUB_ENV
-      #     shell: bash
+      - name: Get the release version
+        # i.e.: release/1.0.0 -> 1.0.0
+        id: strip-branch-name
+        run: |
+          release_version=$(echo "${{ github.ref }}" | sed 's/refs\/heads\/.*\///')
+          echo "Building release version $release_version"
+          echo "RELEASE_VERSION=$release_version" >> $GITHUB_ENV
+          shell: bash
 
       # Build the Docker image
       - name: Build the Docker image
-        run: docker build .
+        run: docker build --tag $DOCKER_IMAGE_NAME:$RELEASE_VERSION .
+
+    #     # Tag the Docker Images
+    #   - name: Tag the image for the private registry $DOCKER_REGISTRY_URL
+    #     run: docker tag $DOCKER_IMAGE_NAME:$RELEASE_VERSION $DOCKER_REGISTRY_URL/$DOCKER_IMAGE_NAME:$RELEASE_VERSION
+
+    #   - name: Create a latest image as well
+    #     run: docker tag $DOCKER_IMAGE_NAME:$RELEASE_VERSION $DOCKER_REGISTRY_URL/$DOCKER_IMAGE_NAME:latest
+
+    #   # Push the images to the registry
+    #   - name: Push the Docker image with version number
+    #     run: docker push $DOCKER_REGISTRY_URL/$DOCKER_IMAGE_NAME:$RELEASE_VERSION
+
+    #   - name: Push the latest tag
+    #     run: docker push $DOCKER_REGISTRY_URL/$DOCKER_IMAGE_NAME:latest
+
+    #   # Remove the local images
+    #   - name: Remove the Docker image with version number
+    #     run: docker rmi $DOCKER_REGISTRY_URL/$DOCKER_IMAGE_NAME:$RELEASE_VERSION
+
+    #   - name: Remove the Docker image with latest tag
+    #     run: docker rmi $DOCKER_REGISTRY_URL/$DOCKER_IMAGE_NAME:latest
+
+    #   - name: Remove the local image
+    #     run: docker rmi $DOCKER_IMAGE_NAME:$RELEASE_VERSION
