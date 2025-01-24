@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
   # Trigger the action when I create or push a `release/**` branch
   push:
-    branches:
-      - "release/**"
+    tags:
+      - "*"
 
 env:
   DOCKER_IMAGE_NAME: plot5d
