@@ -30,7 +30,7 @@ jobs:
           release_version=$(echo "${{ github.ref }}" | sed 's/refs\/tags\///')
           echo "Building release version $release_version"
           echo "RELEASE_VERSION=$release_version" >> $GITHUB_ENV
-          shell: bash
+        shell: bash
 
       # Build the Docker image
       - name: Build the Docker image
