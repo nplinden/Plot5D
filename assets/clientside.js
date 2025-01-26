@@ -1,5 +1,8 @@
 window.dash_clientside = Object.assign({}, window.dash_clientside, {
   clientside: {
+    loading_overlay: function (filename) {
+      return true;
+    },
     update_dropdown: function (data) {
       if (data.length === 0 || data === undefined) {
         return [];
@@ -15,7 +18,6 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         keys, // table
       ];
     },
-
     update_row_dropdown: function (option, data, loaded) {
       let value = [];
       if (loaded !== undefined) {
@@ -31,7 +33,12 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       } else if (option === undefined) {
         return [];
       }
-      const unique = [...new Set(data.map((v) => v[option]))].sort();
+      const unique = [...new Set(data.map((v) => v[option]))]
+        .sort()
+        .map((v) => {
+          return { value: "" + v, label: "" + v };
+        });
+      console.log(unique);
       return [unique, value];
     },
 
@@ -50,22 +57,12 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       } else if (option === undefined) {
         return [];
       }
-      const unique = [...new Set(data.map((v) => v[option]))].sort();
+      const unique = [...new Set(data.map((v) => v[option]))]
+        .sort()
+        .map((v) => {
+          return { value: "" + v, label: "" + v };
+        });
       return [unique, value];
-    },
-
-    update_discrete_dropdown: function (option, data) {
-      if (data === undefined) {
-        return [];
-      } else if (data.length === 0) {
-        return [];
-      } else if (option == null) {
-        return [];
-      } else if (option === undefined) {
-        return [];
-      }
-      let unique = [...new Set(data.map((v) => v[option]))].sort();
-      return unique;
     },
 
     update_subplot: function (
@@ -82,17 +79,26 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       y_max,
       color_min,
       color_max,
-      data
+      data,
+      style
     ) {
-      if (x === undefined || y === undefined) {
+      console.log(`x=${x}`);
+      console.log(`y=${y}`);
+      console.log(`color=${color}`);
+      console.log(`row_dropdown=${row_dropdown}`);
+      console.log(`row_value_dropdown=${row_val_dropdown}`);
+      console.log(`col_dropdown=${col_dropdown}`);
+      console.log(`col_value_dropdown=${col_val_dropdown}`);
+      if (x === null || y === null) {
         return window.dash_clientside.no_update;
       }
-      if (row_dropdown == undefined || row_val_dropdown == undefined) {
+      if (row_dropdown == null || col_dropdown == null) {
         return window.dash_clientside.no_update;
       }
-      if (col_dropdown == undefined || col_val_dropdown == undefined) {
+      if (row_val_dropdown == undefined || col_val_dropdown == undefined) {
         return window.dash_clientside.no_update;
       }
+
       x_min = x_min ? x_min : Number.NEGATIVE_INFINITY;
       x_max = x_max ? x_max : Number.POSITIVE_INFINITY;
       y_min = y_min ? y_min : Number.NEGATIVE_INFINITY;
@@ -105,7 +111,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         .filter((v) => v[x] < x_max)
         .filter((v) => v[y] > y_min)
         .filter((v) => v[y] < y_max);
-      if (color !== undefined) {
+      if (color !== null) {
         candidates = candidates
           .filter((v) => v[color] > color_min)
           .filter((v) => v[color] < color_max);
@@ -141,6 +147,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         title: {
           text: `Number of data points: ${count}`,
         },
+        template: "plotly_dark",
         grid: {
           rows: row_val_dropdown.length,
           columns: col_val_dropdown.length,
@@ -150,11 +157,18 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         },
         showlegend: false,
       };
-
-      return { data: plotdata, layout: layout };
+      let new_style = { ...style };
+      new_style.display = "block";
+      console.log(new_style);
+      return [{ data: plotdata, layout: layout }, new_style];
     },
 
-    select_data_for_parcoord: function (selected, parcoord_dropdown, data) {
+    select_data_for_parcoord: function (
+      selected,
+      parcoord_dropdown,
+      data,
+      style
+    ) {
       console.log("Entering select_data_for_parcoord callback");
       if (!selected) {
         return window.dash_clientside.no_update;
@@ -193,7 +207,15 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         JSON.stringify({ data: [pardata], layout: layout }, null, "\t")
       );
       console.log(JSON.stringify({ ...parcoord_dropdown }, null, "\t"));
-      return [{ data: [pardata], layout: layout }, { ...parcoord_dropdown }];
+      let new_style = { ...style };
+      new_style.display = "block";
+      console.log(new_style);
+      console.log(style);
+      return [
+        { data: [pardata], layout: layout },
+        { ...parcoord_dropdown },
+        new_style,
+      ];
     },
 
     store_parcoord_style: function (restyle_data, data) {
@@ -226,7 +248,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
     draw_table: function (
       parcoords_dropdown_memory,
       parcoords_memory,
-      page_curent,
+      page_current,
       table_dropdown,
       selected,
       page_size,
@@ -248,11 +270,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       let idx = selected.points.map((v) => v.customdata);
       let values = idx.map((v) => data[v]);
 
-      let page_count = Math.floor(values.length / page_size) + 1;
-      if (values.length > 0 || values.length % page_size == 0) {
-        page_count--;
-      }
-
+      // Applying spider graph range filters
       for (const [col_idx, ranges] of Object.entries(parcoords_memory)) {
         col_name = parcoords_dropdown_memory[col_idx];
         queries = [];
@@ -268,7 +286,6 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
           return ok;
         });
       }
-
       values = values.map((v) => {
         let obj = {};
         for (const col of table_dropdown) {
@@ -279,12 +296,21 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
 
       if (values.length === 0) {
         return window.dash_clientside.no_update;
-      } else {
-        let columns = Object.keys(values[0]).map((v) => {
-          return { name: v, id: v };
-        });
-        return [values, columns, page_count];
       }
+
+      let page_count = Math.floor(values.length / page_size) + 1;
+      if (values.length % page_size == 0) {
+        page_count--;
+      }
+      values = values.slice(
+        page_current * page_size,
+        (page_current + 1) * page_size
+      );
+
+      let columns = Object.keys(values[0]).map((v) => {
+        return { name: v, id: v };
+      });
+      return [values, columns, page_count];
     },
   },
 });

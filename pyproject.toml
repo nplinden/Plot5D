@@ -12,6 +12,8 @@ dependencies = [
     "loguru>=0.7.3",
     "numpy>=2.2.1",
     "pandas>=2.2.3",
+    "dash-mantine-components>=0.15.2",
+    "dash-iconify>=0.1.2",
 ]
 
 [project.scripts]
