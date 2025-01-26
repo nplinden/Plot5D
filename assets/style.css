@@ -18,3 +18,7 @@
 :root[data-mantine-color-scheme="light"] #light-theme-icon {
     display: none;
 }
+
+.dash-table-container:not(:has(td)) #table {
+    display: none;
+}

@@ -132,7 +132,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
             yaxis: `y${index}`,
             mode: "markers",
             marker: {
-              color: toplot.map((v) => v[color]),
+              color: toplot.map((v) => v[color] || "#e8590c"),
             },
             type: "scattergl",
           });
@@ -147,7 +147,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         title: {
           text: `Number of data points: ${count}`,
         },
-        template: "plotly_dark",
+        // template: "plotly_dark",
         grid: {
           rows: row_val_dropdown.length,
           columns: col_val_dropdown.length,
@@ -193,7 +193,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       const pardata = {
         type: "parcoords",
         line: {
-          color: "blue",
+          color: "#ff922b",
         },
         dimensions: dimensions,
       };

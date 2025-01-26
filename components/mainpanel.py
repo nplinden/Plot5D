@@ -31,16 +31,18 @@ def mainpanel():
                 zIndex=10,
             ),
             dcc.Store(id="storage", storage_type="memory"),
+            dcc.Store(id="mainplot-storage", storage_type="memory"),
             dcc.Graph(
-                id="5DPlot",
-                className="graph",
+                id="mainplot",
+                # className="graph",
                 style={"width": "90h", "height": "90vh", "display": "none"},
             ),
+            dcc.Store(id="spider-storage", storage_type="memory"),
             dcc.Graph(
                 id="spider",
-                className="graph",
+                # className="graph",
                 style={"width": "90h", "height": "90vh", "display": "none"},
             ),
-            dmc.Center(style={"width": "100%"}, children=[table], mt="sm"),
+            dmc.Center(style={"width": "100%"}, children=[table], mt="sm", id="table-center"),
         ]
     )

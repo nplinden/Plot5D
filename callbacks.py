@@ -6,7 +6,9 @@ from dash import (
     clientside_callback,
     ClientsideFunction,
 )
+from dash_mantine_components import add_figure_templates
 from dash.exceptions import PreventUpdate
+import plotly.graph_objects as go
 import base64
 import pandas as pd
 from io import StringIO
@@ -95,8 +97,9 @@ clientside_callback(
 
 clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="update_subplot"),
-    Output("5DPlot", "figure"),
-    Output("5DPlot", "style"),
+    # Output("mainplot", "figure"),
+    Output("mainplot-storage", "data"),
+    Output("mainplot", "style"),
     Input("x-slct", "value"),
     Input("y-slct", "value"),
     Input("color-slct", "value"),
@@ -111,7 +114,7 @@ clientside_callback(
     Input("color-min", "value"),
     Input("color-max", "value"),
     State("storage", "data"),
-    State("5DPlot", "style"),
+    State("mainplot", "style"),
 )
 
 
@@ -203,23 +206,12 @@ def load_state(data):
     )
 
 
-# clientside_callback(
-#     """
-#     (switchOn) => {
-#        document.documentElement.setAttribute('data-mantine-color-scheme', switchOn ? 'dark' : 'light');
-#        return window.dash_clientside.no_update
-#     }
-#     """,
-#     Output("color-scheme-toggle", "id"),
-#     Input("color-scheme-toggle", "checked"),
-# )
-
 clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="select_data_for_parcoord"),
-    Output("spider", "figure"),
+    Output("spider-storage", "data"),
     Output("spider-slct-memory", "data"),
     Output("spider", "style"),
-    Input("5DPlot", "selectedData"),
+    Input("mainplot", "selectedData"),
     Input("spider-slct", "value"),
     State("storage", "data"),
     State("spider", "style"),
@@ -241,7 +233,7 @@ clientside_callback(
     Input("spider-memory", "data"),
     Input("table", "page_current"),
     Input("table-slct", "value"),
-    State("5DPlot", "selectedData"),
+    State("mainplot", "selectedData"),
     State("table", "page_size"),
     State("storage", "data"),
 )
@@ -275,3 +267,41 @@ clientside_callback(
     Output("provider", "forceColorScheme"),
     Input("color-scheme-storage", "data"),
 )
+
+add_figure_templates()
+
+
+@callback(
+    Output("mainplot", "figure"),
+    Input("mainplot-storage", "data"),
+    Input("color-scheme-storage", "data"),
+)
+def figure_theme(figdata, theme):
+    with open("fig.json", "w") as f:
+        json.dump(figdata, fp=f)
+
+    fig = go.Figure(figdata)
+    if theme == "light":
+        fig.layout.template = "mantine_light"
+    else:
+        fig.layout.template = "mantine_dark"
+
+    return fig
+
+
+@callback(
+    Output("spider", "figure"),
+    Input("spider-storage", "data"),
+    Input("color-scheme-storage", "data"),
+)
+def spider_theme(figdata, theme):
+    with open("fig.json", "w") as f:
+        json.dump(figdata, fp=f)
+
+    fig = go.Figure(figdata)
+    if theme == "light":
+        fig.layout.template = "mantine_light"
+    else:
+        fig.layout.template = "mantine_dark"
+
+    return fig

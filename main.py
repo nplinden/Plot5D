@@ -6,6 +6,7 @@ from components.appshell import appshell
 from callbacks import *
 
 import argparse as ap
+import plotly.graph_objects as go
 
 dash._dash_renderer._set_react_version("18.2.0")
 
