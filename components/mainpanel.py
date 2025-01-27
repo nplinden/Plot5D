@@ -1,5 +1,6 @@
 import dash_mantine_components as dmc
 from dash import html, dcc, dash_table
+from components.text import helper
 
 table = dash_table.DataTable(
     id="table",
@@ -18,6 +19,12 @@ table = dash_table.DataTable(
 def mainpanel():
     return dmc.AppShellMain(
         children=[
+            dmc.Modal(
+                title=helper["title"],
+                children=helper["children"],
+                id="helper-modal",
+                size="60%",
+            ),
             dcc.Upload(
                 id="df_upload",
                 children=html.Div("Upload csv file"),

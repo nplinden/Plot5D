@@ -253,7 +253,7 @@ clientside_callback(
     """function(n_clicks, theme) {
         console.log(n_clicks);
         console.log(theme);
-        return theme === "dark" ? "light" : "dark"
+        return theme === "light" ? "dark" : "light"
     }
     """,
     Output("color-scheme-storage", "data"),
@@ -299,3 +299,13 @@ def spider_theme(figdata, theme):
         fig.layout.template = "mantine_dark"
 
     return fig
+
+
+@callback(
+    Output("helper-modal", "opened"),
+    Input("help", "n_clicks"),
+    State("helper-modal", "opened"),
+    prevent_initial_call=True,
+)
+def helper_overlay(n_clicks, opened):
+    return not opened
