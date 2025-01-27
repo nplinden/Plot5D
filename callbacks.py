@@ -277,9 +277,6 @@ add_figure_templates()
     Input("color-scheme-storage", "data"),
 )
 def figure_theme(figdata, theme):
-    with open("fig.json", "w") as f:
-        json.dump(figdata, fp=f)
-
     fig = go.Figure(figdata)
     if theme == "light":
         fig.layout.template = "mantine_light"
@@ -295,9 +292,6 @@ def figure_theme(figdata, theme):
     Input("color-scheme-storage", "data"),
 )
 def spider_theme(figdata, theme):
-    with open("fig.json", "w") as f:
-        json.dump(figdata, fp=f)
-
     fig = go.Figure(figdata)
     if theme == "light":
         fig.layout.template = "mantine_light"
