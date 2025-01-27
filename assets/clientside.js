@@ -99,6 +99,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         return window.dash_clientside.no_update;
       }
 
+      // Setting default filter values
       x_min = x_min ? x_min : Number.NEGATIVE_INFINITY;
       x_max = x_max ? x_max : Number.POSITIVE_INFINITY;
       y_min = y_min ? y_min : Number.NEGATIVE_INFINITY;
@@ -106,6 +107,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       color_min = color_min ? color_min : Number.NEGATIVE_INFINITY;
       color_max = color_max ? color_max : Number.POSITIVE_INFINITY;
 
+      // Applying filters
       let candidates = data
         .filter((v) => v[x] > x_min)
         .filter((v) => v[x] < x_max)
@@ -117,12 +119,37 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
           .filter((v) => v[color] < color_max);
       }
 
+      let layout = {
+        grid: {
+          rows: row_val_dropdown.length,
+          columns: col_val_dropdown.length,
+          pattern: "independent",
+          xgap: 0.1,
+          ygap: 0.1,
+        },
+        showlegend: false,
+      };
+
       let plotdata = [];
+      let indexArray = new Array(row_val_dropdown.length)
+        .fill(0)
+        .map(() => new Array(col_val_dropdown.length).fill(0));
       row_val_dropdown.forEach((row, irow) => {
         const row_candidates = candidates.filter((v) => v[row_dropdown] == row);
 
         col_val_dropdown.forEach((col, icol) => {
           const index = irow * col_val_dropdown.length + icol + 1;
+          indexArray[irow][icol] = index;
+          if (icol == 0) {
+            layout[`yaxis${index}`] = {
+              title: y,
+            };
+          }
+          if (irow == row_val_dropdown.length - 1) {
+            layout[`xaxis${index}`] = {
+              title: x,
+            };
+          }
           const toplot = row_candidates.filter((v) => v[col_dropdown] == col);
           plotdata.push({
             x: toplot.map((v) => v[x]),
@@ -142,21 +169,41 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       let count = plotdata
         .map((v) => v.x.length)
         .reduce((acc, current) => acc + current);
+      layout["title"] = { text: `Number of data points: ${count}` };
 
-      let layout = {
-        title: {
-          text: `Number of data points: ${count}`,
-        },
-        // template: "plotly_dark",
-        grid: {
-          rows: row_val_dropdown.length,
-          columns: col_val_dropdown.length,
-          pattern: "independent",
-          xgap: 0.1,
-          ygap: 0.1,
-        },
-        showlegend: false,
-      };
+      let annotations = [];
+      console.log(row_dropdown);
+      for (let irow in row_val_dropdown) {
+        annotations.push({
+          y: 1 - (2 * irow + 1) / 2 / row_val_dropdown.length,
+          x: 1.05,
+          xref: "paper",
+          yref: "paper",
+          text: `${row_dropdown}=${row_val_dropdown[irow]}`,
+          font: { weight: 700 }, // bold
+          textangle: 90,
+          xanchor: "center",
+          ax: 0,
+          ay: 0,
+          showarrow: false,
+        });
+      }
+      for (let icol in col_val_dropdown) {
+        annotations.push({
+          x: (2 * icol + 1) / 2 / col_val_dropdown.length,
+          y: 1.05,
+          xref: "paper",
+          yref: "paper",
+          text: `${col_dropdown}=${col_val_dropdown[icol]}`,
+          font: { weight: 700 }, // bold
+          xanchor: "center",
+          ax: 0,
+          ay: 0,
+          showarrow: false,
+        });
+      }
+      layout["annotations"] = annotations;
+
       let new_style = { ...style };
       new_style.display = "block";
       console.log(new_style);

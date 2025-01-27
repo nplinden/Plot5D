@@ -20,6 +20,11 @@ theme_toggle = dmc.ActionIcon(
     id="color-scheme-toggle",
     size="lg",
 )
+helper = dmc.ActionIcon(DashIconify(icon="clarity:help-line", width=25), variant="subtle", size="lg", id="help")
+
+settings = dmc.ActionIcon(
+    DashIconify(icon="clarity:settings-line", width=25), variant="subtle", size="lg", id="settings"
+)
 
 
 def header():
@@ -39,11 +44,8 @@ def header():
                 ),
                 dmc.Group(
                     [
-                        dmc.ActionIcon(
-                            DashIconify(icon="clarity:help-line", width=50),
-                            variant="subtle",
-                            size="sm",
-                        ),
+                        settings,
+                        helper,
                         dcc.Store(id="color-scheme-storage", storage_type="local"),
                         theme_toggle,
                     ]
