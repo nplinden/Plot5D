@@ -15,7 +15,6 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         keys, // y
         keys, // color
         keys, // spider
-        keys, // table
       ];
     },
     update_row_dropdown: function (option, data, loaded) {
@@ -154,7 +153,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
           plotdata.push({
             x: toplot.map((v) => v[x]),
             y: toplot.map((v) => v[y]),
-            customdata: toplot.map((v) => v["index"]),
+            customdata: toplot.map((v) => v["_index"]),
             xaxis: `x${index}`,
             yaxis: `y${index}`,
             mode: "markers",
@@ -210,7 +209,13 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       return [{ data: plotdata, layout: layout }, new_style];
     },
 
-    build_spider: function (selected, spider_slct, data, style) {
+    build_spider: function (
+      selected,
+      spider_slct,
+      data,
+      spider_style,
+      affix_style
+    ) {
       console.log("Entering build_spider callback");
       if (!selected) {
         return window.dash_clientside.no_update;
@@ -249,14 +254,18 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         JSON.stringify({ data: [pardata], layout: layout }, null, "\t")
       );
       console.log(JSON.stringify({ ...spider_slct }, null, "\t"));
-      let new_style = { ...style };
-      new_style.display = "block";
-      console.log(new_style);
-      console.log(style);
+      let new_spider_style = { ...spider_style };
+      new_spider_style.display = "block";
+      let new_affix_style = { ...affix_style };
+      new_affix_style.display = "block";
+      console.log(
+        `new_affix_style=${JSON.stringify(new_affix_style, null, "\t")}`
+      );
       return [
         { data: [pardata], layout: layout },
         { ...spider_slct },
-        new_style,
+        new_spider_style,
+        new_affix_style,
       ];
     },
 
@@ -287,72 +296,61 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       return data;
     },
 
-    draw_table: function (
+    download_filtered_csv: function (
+      n_clicks,
       spider_slct_memory,
       spider_filters_memory,
-      page_current,
-      table_dropdown,
       selected,
-      page_size,
       data
     ) {
-      if (spider_filters_memory === undefined) {
-        return window.dash_clientside.no_update;
-      }
-      if (spider_slct_memory === undefined) {
-        return window.dash_clientside.no_update;
-      }
-      if (!selected) {
-        return window.dash_clientside.no_update;
-      }
-      if (table_dropdown === undefined) {
-        return window.dash_clientside.no_update;
-      }
-
+      // Applying 5DPlot selection to the data
       let idx = selected.points.map((v) => v.customdata);
       let values = idx.map((v) => data[v]);
 
-      // Applying spider graph range filters
-      for (const [col_idx, ranges] of Object.entries(spider_filters_memory)) {
-        col_name = spider_slct_memory[col_idx];
-        queries = [];
-        values = values.filter((v) => {
-          let ok = false;
-          for (const r of ranges) {
-            const val = v[col_name];
+      // Applying spider graph range filters to the data
+      if (
+        spider_filters_memory !== undefined &&
+        spider_slct_memory !== undefined
+      ) {
+        for (const [col_idx, ranges] of Object.entries(spider_filters_memory)) {
+          col_name = spider_slct_memory[col_idx];
+          queries = [];
+          values = values.filter((v) => {
+            let ok = false;
+            for (const r of ranges) {
+              const val = v[col_name];
 
-            if (val < r[1] && val > r[0]) {
-              ok = true;
+              if (val < r[1] && val > r[0]) {
+                ok = true;
+              }
             }
-          }
-          return ok;
-        });
-      }
-      values = values.map((v) => {
-        let obj = {};
-        for (const col of table_dropdown) {
-          obj[col] = v[col];
+            return ok;
+          });
         }
-        return obj;
-      });
+      }
 
       if (values.length === 0) {
         return window.dash_clientside.no_update;
       }
 
-      let page_count = Math.floor(values.length / page_size) + 1;
-      if (values.length % page_size == 0) {
-        page_count--;
+      const columns = Object.keys(values[0]).filter((v) => v != "_index");
+      let csv = columns.join(",") + "\n";
+      for (record of values) {
+        csv += recordToLine(columns, record);
       }
-      values = values.slice(
-        page_current * page_size,
-        (page_current + 1) * page_size
-      );
-
-      let columns = Object.keys(values[0]).map((v) => {
-        return { name: v, id: v };
-      });
-      return [values, columns, page_count];
+      console.log(`${csv}`);
+      return {
+        content: csv,
+        filename: "selection.csv",
+      };
     },
   },
 });
+
+const recordToLine = function (columns, record) {
+  let line = "";
+  for (col of columns) {
+    line += `${record[col]},`;
+  }
+  return line.slice(0, -1) + "\n";
+};

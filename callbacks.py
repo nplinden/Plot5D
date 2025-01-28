@@ -53,7 +53,7 @@ def store_data(contents, filename):
     _, string = contents.split(",")
     decoded = base64.b64decode(string).decode("utf-8")
     df = pd.read_csv(StringIO(decoded))
-    df["index"] = df.index
+    df["_index"] = df.index
     return df.to_dict("records"), {"display": "none"}, False
 
 
@@ -72,7 +72,6 @@ clientside_callback(
     Output("y-slct", "data"),
     Output("color-slct", "data"),
     Output("spider-slct", "data"),
-    Output("table-slct", "data"),
     Input("storage", "data"),
     prevent_initial_call=True,
 )
@@ -211,31 +210,30 @@ clientside_callback(
     Output("spider-storage", "data"),
     Output("spider-slct-memory", "data"),
     Output("spider", "style"),
+    Output("download-selection-affix", "style"),
     Input("mainplot", "selectedData"),
     Input("spider-slct", "value"),
     State("storage", "data"),
     State("spider", "style"),
+    State("download-selection-btn", "style"),
 )
 
 clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="store_spider_filters"),
-    Output("spider-memory", "data"),
+    Output("spider-filters-memory", "data"),
     Input("spider", "restyleData"),
-    State("spider-memory", "data"),
+    State("spider-filters-memory", "data"),
 )
 
 clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="draw_table"),
-    Output("table", "data"),
-    Output("table", "columns"),
-    Output("table", "page_count"),
-    Input("spider-slct-memory", "data"),
-    Input("spider-memory", "data"),
-    Input("table", "page_current"),
-    Input("table-slct", "value"),
+    ClientsideFunction(namespace="clientside", function_name="download_filtered_csv"),
+    Output("download-selection", "data"),
+    Input("download-selection-btn", "n_clicks"),
+    State("spider-slct-memory", "data"),
+    State("spider-filters-memory", "data"),
     State("mainplot", "selectedData"),
-    State("table", "page_size"),
     State("storage", "data"),
+    prevent_initial_call=True,
 )
 
 
