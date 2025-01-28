@@ -14,7 +14,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         keys, // x
         keys, // y
         keys, // color
-        keys, // parcoord
+        keys, // spider
         keys, // table
       ];
     },
@@ -210,24 +210,19 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       return [{ data: plotdata, layout: layout }, new_style];
     },
 
-    select_data_for_parcoord: function (
-      selected,
-      parcoord_dropdown,
-      data,
-      style
-    ) {
-      console.log("Entering select_data_for_parcoord callback");
+    build_spider: function (selected, spider_slct, data, style) {
+      console.log("Entering build_spider callback");
       if (!selected) {
         return window.dash_clientside.no_update;
       }
       let idx = selected.points.map((v) => v.customdata);
       let values = idx.map((v) => data[v]);
 
-      if (!parcoord_dropdown) {
+      if (!spider_slct) {
         return window.dash_clientside.no_update;
       }
       let dimensions = [];
-      for (column of parcoord_dropdown) {
+      for (column of spider_slct) {
         const dim_values = values.map((v) => v[column]);
         dimensions.push({
           range: [Math.min(...dim_values), Math.max(...dim_values)],
@@ -253,19 +248,19 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       console.log(
         JSON.stringify({ data: [pardata], layout: layout }, null, "\t")
       );
-      console.log(JSON.stringify({ ...parcoord_dropdown }, null, "\t"));
+      console.log(JSON.stringify({ ...spider_slct }, null, "\t"));
       let new_style = { ...style };
       new_style.display = "block";
       console.log(new_style);
       console.log(style);
       return [
         { data: [pardata], layout: layout },
-        { ...parcoord_dropdown },
+        { ...spider_slct },
         new_style,
       ];
     },
 
-    store_parcoord_style: function (restyle_data, data) {
+    store_spider_filters: function (restyle_data, data) {
       if (!restyle_data) {
         return window.dash_clientside.no_update;
       }
@@ -293,18 +288,18 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
     },
 
     draw_table: function (
-      parcoords_dropdown_memory,
-      parcoords_memory,
+      spider_slct_memory,
+      spider_filters_memory,
       page_current,
       table_dropdown,
       selected,
       page_size,
       data
     ) {
-      if (parcoords_memory === undefined) {
+      if (spider_filters_memory === undefined) {
         return window.dash_clientside.no_update;
       }
-      if (parcoords_dropdown_memory === undefined) {
+      if (spider_slct_memory === undefined) {
         return window.dash_clientside.no_update;
       }
       if (!selected) {
@@ -318,8 +313,8 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       let values = idx.map((v) => data[v]);
 
       // Applying spider graph range filters
-      for (const [col_idx, ranges] of Object.entries(parcoords_memory)) {
-        col_name = parcoords_dropdown_memory[col_idx];
+      for (const [col_idx, ranges] of Object.entries(spider_filters_memory)) {
+        col_name = spider_slct_memory[col_idx];
         queries = [];
         values = values.filter((v) => {
           let ok = false;

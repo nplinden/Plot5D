@@ -207,7 +207,7 @@ def load_state(data):
 
 
 clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="select_data_for_parcoord"),
+    ClientsideFunction(namespace="clientside", function_name="build_spider"),
     Output("spider-storage", "data"),
     Output("spider-slct-memory", "data"),
     Output("spider", "style"),
@@ -218,7 +218,7 @@ clientside_callback(
 )
 
 clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="store_parcoord_style"),
+    ClientsideFunction(namespace="clientside", function_name="store_spider_filters"),
     Output("spider-memory", "data"),
     Input("spider", "restyleData"),
     State("spider-memory", "data"),
