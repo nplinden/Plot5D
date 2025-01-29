@@ -1,24 +1,18 @@
 import dash_mantine_components as dmc
-from dash import html, dcc, dash_table
+from dash import html, dcc
 from components.text import helper
-
-table = dash_table.DataTable(
-    id="table",
-    page_current=0,
-    page_size=12,
-    page_action="custom",
-    style_cell={"fontSize": 20, "font-familiy": "monospace"},
-    sort_action="custom",
-    sort_mode="single",
-    sort_by=[],
-    tooltip_duration=None,
-    fill_width=False,
-)
 
 
 def mainpanel():
     return dmc.AppShellMain(
         children=[
+            dmc.Affix(
+                dmc.Button("Download Selection", id="download-selection-btn"),
+                position={"bottom": 20, "right": 20},
+                style={"display": "none"},
+                id="download-selection-affix",
+            ),
+            dcc.Download(id="download-selection"),
             dmc.Modal(
                 title=helper["title"],
                 children=helper["children"],
@@ -41,15 +35,12 @@ def mainpanel():
             dcc.Store(id="mainplot-storage", storage_type="memory"),
             dcc.Graph(
                 id="mainplot",
-                # className="graph",
                 style={"width": "90h", "height": "90vh", "display": "none"},
             ),
             dcc.Store(id="spider-storage", storage_type="memory"),
             dcc.Graph(
                 id="spider",
-                # className="graph",
                 style={"width": "90h", "height": "90vh", "display": "none"},
             ),
-            dmc.Center(style={"width": "100%"}, children=[table], mt="sm", id="table-center"),
         ]
     )

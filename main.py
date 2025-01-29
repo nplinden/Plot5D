@@ -11,6 +11,7 @@ dash._dash_renderer._set_react_version("18.2.0")
 
 parser = ap.ArgumentParser(prog="Plot5D", description="A plotting tool for your favorite dataframes")
 parser.add_argument("-p", "--port", help="A port for the debug server", type=int)
+parser.add_argument("-d", "--debug", help="Run Flask server in debug mode", action="store_true")
 
 app = Dash(
     __name__,
@@ -37,4 +38,4 @@ if __name__ == "__main__":
         port = args.port
 
     # Lancer l'application
-    app.run(debug=True, port=port, host="0.0.0.0")
+    app.run(debug=args.debug, port=port, host="0.0.0.0")

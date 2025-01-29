@@ -95,14 +95,7 @@ def navbar():
                     mt="sm",
                 ),
                 dcc.Store(id="spider-slct-memory", storage_type="memory"),
-                dcc.Store(id="spider-memory", storage_type="memory"),
-                dmc.MultiSelect(
-                    label="Table Columns",
-                    placeholder="Columns",
-                    id="table-slct",
-                    data=[],
-                    mt="sm",
-                ),
+                dcc.Store(id="spider-filters-memory", storage_type="memory"),
             ]
         ),
         p="md",

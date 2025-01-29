@@ -14,8 +14,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         keys, // x
         keys, // y
         keys, // color
-        keys, // parcoord
-        keys, // table
+        keys, // spider
       ];
     },
     update_row_dropdown: function (option, data, loaded) {
@@ -154,7 +153,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
           plotdata.push({
             x: toplot.map((v) => v[x]),
             y: toplot.map((v) => v[y]),
-            customdata: toplot.map((v) => v["index"]),
+            customdata: toplot.map((v) => v["_index"]),
             xaxis: `x${index}`,
             yaxis: `y${index}`,
             mode: "markers",
@@ -210,24 +209,25 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       return [{ data: plotdata, layout: layout }, new_style];
     },
 
-    select_data_for_parcoord: function (
+    build_spider: function (
       selected,
-      parcoord_dropdown,
+      spider_slct,
       data,
-      style
+      spider_style,
+      affix_style
     ) {
-      console.log("Entering select_data_for_parcoord callback");
+      console.log("Entering build_spider callback");
       if (!selected) {
         return window.dash_clientside.no_update;
       }
       let idx = selected.points.map((v) => v.customdata);
       let values = idx.map((v) => data[v]);
 
-      if (!parcoord_dropdown) {
+      if (!spider_slct) {
         return window.dash_clientside.no_update;
       }
       let dimensions = [];
-      for (column of parcoord_dropdown) {
+      for (column of spider_slct) {
         const dim_values = values.map((v) => v[column]);
         dimensions.push({
           range: [Math.min(...dim_values), Math.max(...dim_values)],
@@ -253,19 +253,23 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       console.log(
         JSON.stringify({ data: [pardata], layout: layout }, null, "\t")
       );
-      console.log(JSON.stringify({ ...parcoord_dropdown }, null, "\t"));
-      let new_style = { ...style };
-      new_style.display = "block";
-      console.log(new_style);
-      console.log(style);
+      console.log(JSON.stringify({ ...spider_slct }, null, "\t"));
+      let new_spider_style = { ...spider_style };
+      new_spider_style.display = "block";
+      let new_affix_style = { ...affix_style };
+      new_affix_style.display = "block";
+      console.log(
+        `new_affix_style=${JSON.stringify(new_affix_style, null, "\t")}`
+      );
       return [
         { data: [pardata], layout: layout },
-        { ...parcoord_dropdown },
-        new_style,
+        { ...spider_slct },
+        new_spider_style,
+        new_affix_style,
       ];
     },
 
-    store_parcoord_style: function (restyle_data, data) {
+    store_spider_filters: function (restyle_data, data) {
       if (!restyle_data) {
         return window.dash_clientside.no_update;
       }
@@ -292,72 +296,61 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       return data;
     },
 
-    draw_table: function (
-      parcoords_dropdown_memory,
-      parcoords_memory,
-      page_current,
-      table_dropdown,
+    download_filtered_csv: function (
+      n_clicks,
+      spider_slct_memory,
+      spider_filters_memory,
       selected,
-      page_size,
       data
     ) {
-      if (parcoords_memory === undefined) {
-        return window.dash_clientside.no_update;
-      }
-      if (parcoords_dropdown_memory === undefined) {
-        return window.dash_clientside.no_update;
-      }
-      if (!selected) {
-        return window.dash_clientside.no_update;
-      }
-      if (table_dropdown === undefined) {
-        return window.dash_clientside.no_update;
-      }
-
+      // Applying 5DPlot selection to the data
       let idx = selected.points.map((v) => v.customdata);
       let values = idx.map((v) => data[v]);
 
-      // Applying spider graph range filters
-      for (const [col_idx, ranges] of Object.entries(parcoords_memory)) {
-        col_name = parcoords_dropdown_memory[col_idx];
-        queries = [];
-        values = values.filter((v) => {
-          let ok = false;
-          for (const r of ranges) {
-            const val = v[col_name];
+      // Applying spider graph range filters to the data
+      if (
+        spider_filters_memory !== undefined &&
+        spider_slct_memory !== undefined
+      ) {
+        for (const [col_idx, ranges] of Object.entries(spider_filters_memory)) {
+          col_name = spider_slct_memory[col_idx];
+          queries = [];
+          values = values.filter((v) => {
+            let ok = false;
+            for (const r of ranges) {
+              const val = v[col_name];
 
-            if (val < r[1] && val > r[0]) {
-              ok = true;
+              if (val < r[1] && val > r[0]) {
+                ok = true;
+              }
             }
-          }
-          return ok;
-        });
-      }
-      values = values.map((v) => {
-        let obj = {};
-        for (const col of table_dropdown) {
-          obj[col] = v[col];
+            return ok;
+          });
         }
-        return obj;
-      });
+      }
 
       if (values.length === 0) {
         return window.dash_clientside.no_update;
       }
 
-      let page_count = Math.floor(values.length / page_size) + 1;
-      if (values.length % page_size == 0) {
-        page_count--;
+      const columns = Object.keys(values[0]).filter((v) => v != "_index");
+      let csv = columns.join(",") + "\n";
+      for (record of values) {
+        csv += recordToLine(columns, record);
       }
-      values = values.slice(
-        page_current * page_size,
-        (page_current + 1) * page_size
-      );
-
-      let columns = Object.keys(values[0]).map((v) => {
-        return { name: v, id: v };
-      });
-      return [values, columns, page_count];
+      console.log(`${csv}`);
+      return {
+        content: csv,
+        filename: "selection.csv",
+      };
     },
   },
 });
+
+const recordToLine = function (columns, record) {
+  let line = "";
+  for (col of columns) {
+    line += `${record[col]},`;
+  }
+  return line.slice(0, -1) + "\n";
+};
