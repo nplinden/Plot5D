@@ -2,6 +2,8 @@ import dash_mantine_components as dmc
 from dash_iconify import DashIconify
 from dash import dcc
 
+colors = dmc.DEFAULT_THEME["colors"]
+
 theme_toggle = dmc.ActionIcon(
     [
         DashIconify(

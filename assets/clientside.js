@@ -72,12 +72,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       row_val_dropdown,
       col_dropdown,
       col_val_dropdown,
-      x_min,
-      x_max,
-      y_min,
-      y_max,
-      color_min,
-      color_max,
+      filters,
       data,
       style
     ) {
@@ -88,6 +83,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       console.log(`row_value_dropdown=${row_val_dropdown}`);
       console.log(`col_dropdown=${col_dropdown}`);
       console.log(`col_value_dropdown=${col_val_dropdown}`);
+      console.log(`filters=${JSON.stringify(filters, null, "	")}`);
       if (x === null || y === null) {
         return window.dash_clientside.no_update;
       }
@@ -98,24 +94,16 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         return window.dash_clientside.no_update;
       }
 
-      // Setting default filter values
-      x_min = x_min ? x_min : Number.NEGATIVE_INFINITY;
-      x_max = x_max ? x_max : Number.POSITIVE_INFINITY;
-      y_min = y_min ? y_min : Number.NEGATIVE_INFINITY;
-      y_max = y_max ? y_max : Number.POSITIVE_INFINITY;
-      color_min = color_min ? color_min : Number.NEGATIVE_INFINITY;
-      color_max = color_max ? color_max : Number.POSITIVE_INFINITY;
-
-      // Applying filters
-      let candidates = data
-        .filter((v) => v[x] > x_min)
-        .filter((v) => v[x] < x_max)
-        .filter((v) => v[y] > y_min)
-        .filter((v) => v[y] < y_max);
-      if (color !== null) {
-        candidates = candidates
-          .filter((v) => v[color] > color_min)
-          .filter((v) => v[color] < color_max);
+      let candidates = data;
+      // Applying the filters
+      if (filters !== undefined) {
+        for (const [key, value] of Object.entries(filters)) {
+          const min = value.min ? value.min : Number.NEGATIVE_INFINITY;
+          const max = value.max ? value.max : Number.POSITIVE_INFINITY;
+          candidates = candidates
+            .filter((v) => v[key] > min)
+            .filter((v) => v[key] < max);
+        }
       }
 
       let layout = {
