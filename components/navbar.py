@@ -1,6 +1,8 @@
 import dash_mantine_components as dmc
 from dash import html, dcc
 
+colors = dmc.DEFAULT_THEME["colors"]
+
 
 def navbar():
     return dmc.AppShellNavbar(
@@ -10,13 +12,15 @@ def navbar():
                 "",
                 dcc.Upload(
                     id="state_upload",
-                    children=html.Div(dmc.Button("Upload State File", mt="sm", fullWidth=True)),
+                    children=html.Div(
+                        dmc.Button("Upload State File", mt="sm", fullWidth=True, color=colors["grape"][9])
+                    ),
                     multiple=False,
                 ),
                 dmc.Button(
                     "Download State",
                     mt="sm",
-                    color="grape",
+                    color="blue",
                     w="100%",
                     id="download-state-btn",
                 ),
@@ -38,37 +42,13 @@ def navbar():
                 ),
                 dmc.MultiSelect(placeholder="Values", id="col-value-slct", data=[], mt="sm"),
                 dmc.Select(label="X", placeholder="QOI", id="x-slct", data=[], mt="sm"),
-                dmc.Group(
-                    grow=True,
-                    wrap="nowrap",
-                    children=[
-                        dmc.NumberInput(placeholder="Min", mt="sm", id="x-min"),
-                        dmc.NumberInput(placeholder="Max", mt="sm", id="x-max"),
-                    ],
-                ),
                 dmc.Select(label="Y", placeholder="QOI", id="y-slct", data=[], mt="sm"),
-                dmc.Group(
-                    grow=True,
-                    wrap="nowrap",
-                    children=[
-                        dmc.NumberInput(placeholder="Min", mt="sm", id="y-min"),
-                        dmc.NumberInput(placeholder="Max", mt="sm", id="y-max"),
-                    ],
-                ),
                 dmc.Select(
                     label="Color",
                     placeholder="QOI",
                     id="color-slct",
                     data=[],
                     mt="sm",
-                ),
-                dmc.Group(
-                    grow=True,
-                    wrap="nowrap",
-                    children=[
-                        dmc.NumberInput(placeholder="Min", mt="sm", id="color-min"),
-                        dmc.NumberInput(placeholder="Max", mt="sm", id="color-max"),
-                    ],
                 ),
                 dmc.MultiSelect(
                     label="Spider Columns",
@@ -79,7 +59,17 @@ def navbar():
                 ),
                 dcc.Store(id="spider-slct-memory", storage_type="memory"),
                 dcc.Store(id="spider-filters-memory", storage_type="memory"),
-            ]
+                dmc.Button(
+                    "Add Filter",
+                    mt="sm",
+                    color="grape",
+                    w="100%",
+                    id="add-filter-btn",
+                ),
+                html.Div(id="filter-div", children=[]),
+                dcc.Store(id="filter-store", storage_type="memory"),
+            ],
+            id="navbar-scroll-area",
         ),
         p="md",
     )

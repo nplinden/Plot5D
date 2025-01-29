@@ -1,12 +1,6 @@
-from dash import (
-    Input,
-    Output,
-    State,
-    callback,
-    clientside_callback,
-    ClientsideFunction,
-)
+from dash import Input, Output, State, callback, clientside_callback, ClientsideFunction, Patch, ALL
 from dash_mantine_components import add_figure_templates
+import dash_mantine_components as dmc
 from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
 import base64
@@ -49,7 +43,6 @@ def download_sample(n_clicks, data):
 def store_data(contents, filename):
     if contents is None:
         raise PreventUpdate
-    print(filename)
     _, string = contents.split(",")
     decoded = base64.b64decode(string).decode("utf-8")
     df = pd.read_csv(StringIO(decoded))
@@ -106,12 +99,7 @@ clientside_callback(
     Input("row-value-slct", "value"),
     Input("col-slct", "value"),
     Input("col-value-slct", "value"),
-    Input("x-min", "value"),
-    Input("x-max", "value"),
-    Input("y-min", "value"),
-    Input("y-max", "value"),
-    Input("color-min", "value"),
-    Input("color-max", "value"),
+    Input("filter-store", "data"),
     State("storage", "data"),
     State("mainplot", "style"),
 )
@@ -127,12 +115,6 @@ clientside_callback(
     State("x-slct", "value"),
     State("y-slct", "value"),
     State("color-slct", "value"),
-    State("x-min", "value"),
-    State("x-max", "value"),
-    State("y-min", "value"),
-    State("y-max", "value"),
-    State("color-min", "value"),
-    State("color-max", "value"),
 )
 def save_state(
     n_clicks,
@@ -143,12 +125,6 @@ def save_state(
     x_dropdown,
     y_dropdown,
     color_dropdown,
-    x_min,
-    x_max,
-    y_min,
-    y_max,
-    color_min,
-    color_max,
 ):
     if n_clicks is None:
         raise PreventUpdate
@@ -160,12 +136,6 @@ def save_state(
         "x_dropdown": x_dropdown,
         "y_dropdown": y_dropdown,
         "color_dropdown": color_dropdown,
-        "x_min": x_min,
-        "x_max": x_max,
-        "y_min": y_min,
-        "y_max": y_max,
-        "color_min": color_min,
-        "color_max": color_max,
     }
     return dict(content=json.dumps(state, indent=2), filename="state.json")
 
@@ -176,12 +146,6 @@ def save_state(
     Output("x-slct", "value"),
     Output("y-slct", "value"),
     Output("color-slct", "value"),
-    Output("x-min", "value"),
-    Output("x-max", "value"),
-    Output("y-min", "value"),
-    Output("y-max", "value"),
-    Output("color-min", "value"),
-    Output("color-max", "value"),
     Input("state_upload", "contents"),
 )
 def load_state(data):
@@ -196,12 +160,6 @@ def load_state(data):
         state["x_dropdown"],
         state["y_dropdown"],
         state["color_dropdown"],
-        state["x_min"],
-        state["x_max"],
-        state["y_min"],
-        state["y_max"],
-        state["color_min"],
-        state["color_max"],
     )
 
 
@@ -317,3 +275,59 @@ def helper_overlay(n_clicks, opened):
 )
 def settings_overlay(n_clicks, opened):
     return not opened
+
+
+def filter_component(label, id):
+    return (
+        dmc.Select(
+            label=label,
+            placeholder="QOI",
+            id={"type": "filter-slct", "index": id},
+            data=[],
+            mt="sm",
+        ),
+        dmc.Group(
+            grow=True,
+            wrap="nowrap",
+            children=[
+                dmc.NumberInput(placeholder="Min", mt="sm", id={"type": "filter-min", "index": id}),
+                dmc.NumberInput(placeholder="Max", mt="sm", id={"type": "filter-max", "index": id}),
+            ],
+        ),
+    )
+
+
+@callback(
+    Output("filter-div", "children"),
+    Input("add-filter-btn", "n_clicks"),
+    State("storage", "data"),
+    prevent_initial_call=True,
+)
+def add_filter(n_clicks, data):
+    if data is None:
+        raise PreventUpdate
+    patched_children = Patch()
+    select, group = filter_component(f"Filter #{n_clicks}", n_clicks)
+    select.data = list(data[0].keys())
+    patched_children.append(select)
+    patched_children.append(group)
+    return patched_children
+
+
+@callback(
+    Output("filter-store", "data"),
+    Input({"type": "filter-slct", "index": ALL}, "value"),
+    Input({"type": "filter-min", "index": ALL}, "value"),
+    Input({"type": "filter-max", "index": ALL}, "value"),
+)
+def get_filters(values, mins, maxs):
+    if all(v is None for v in values):
+        raise PreventUpdate
+    return {k: {"min": mins[i], "max": maxs[i]} for (i, k) in enumerate(values)}
+
+
+@callback(Input("filter-store", "data"))
+def print_filter_store(data):
+    if not data:
+        raise PreventUpdate
+    print(data)
