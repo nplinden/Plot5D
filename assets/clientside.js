@@ -115,6 +115,23 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
           ygap: 0.1,
         },
         showlegend: false,
+        coloraxis: {
+          colorscale: [
+            [0.0, "#1864ab"],
+            [0.14285714285714285, "#7065b9"],
+            [0.2857142857142857, "#af61b7"],
+            [0.42857142857142855, "#e35ea5"],
+            [0.5714285714285714, "#ff6587"],
+            [0.7142857142857143, "#ff7c63"],
+            [0.8571428571428571, "#ff9e3d"],
+            [1.0, "#fcc419"],
+          ],
+          colorbar: {
+            xref: "paper",
+            x: 1.07,
+            title: color,
+          },
+        },
       };
 
       let plotdata = [];
@@ -147,6 +164,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
             mode: "markers",
             marker: {
               color: toplot.map((v) => v[color] || "#e8590c"),
+              coloraxis: "coloraxis",
             },
             type: "scattergl",
           });
