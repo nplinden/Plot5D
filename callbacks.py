@@ -280,11 +280,7 @@ def settings_overlay(n_clicks, opened):
 def filter_component(label, id):
     return (
         dmc.Select(
-            label=label,
-            placeholder="QOI",
-            id={"type": "filter-slct", "index": id},
-            data=[],
-            mt="sm",
+            label=label, placeholder="QOI", id={"type": "filter-slct", "index": id}, data=[], mt="sm", searchable=True
         ),
         dmc.Group(
             grow=True,
