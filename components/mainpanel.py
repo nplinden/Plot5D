@@ -1,6 +1,7 @@
 import dash_mantine_components as dmc
 from dash import html, dcc
 from components.text import helper
+from components.settings import settings
 
 
 def mainpanel():
@@ -19,6 +20,7 @@ def mainpanel():
                 id="helper-modal",
                 size="60%",
             ),
+            settings,
             dcc.Upload(
                 id="df_upload",
                 children=html.Div("Upload csv file"),

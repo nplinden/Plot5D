@@ -307,3 +307,13 @@ def spider_theme(figdata, theme):
 )
 def helper_overlay(n_clicks, opened):
     return not opened
+
+
+@callback(
+    Output("settings-modal", "opened"),
+    Input("settings", "n_clicks"),
+    State("settings-modal", "opened"),
+    prevent_initial_call=True,
+)
+def settings_overlay(n_clicks, opened):
+    return not opened
