@@ -21,23 +21,6 @@ def navbar():
                     id="download-state-btn",
                 ),
                 dcc.Download(id="download-state"),
-                dcc.Download(id="download-sample"),
-                dmc.Text("Download Sample data", size="sm", fw=500, mt="sm", mb="2px"),
-                dmc.Group(
-                    grow=True,
-                    wrap="nowrap",
-                    children=[
-                        dmc.NumberInput(
-                            placeholder="Lines",
-                            id="download-sample-lines",
-                        ),
-                        dmc.Button(
-                            "Download",
-                            color="grape",
-                            id="download-sample-btn",
-                        ),
-                    ],
-                ),
                 dmc.Select(
                     label="Row",
                     placeholder="Discrete Valued QOI",
