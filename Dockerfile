@@ -10,4 +10,4 @@ COPY assets/ /app/Plot5D/assets
 COPY components/ /app/Plot5D/components
 COPY main.py callbacks.py pyproject.toml README.md /app/Plot5D/
 
-CMD [ "uv", "run", "--directory", "/app/Plot5D", "/app/Plot5D/main.py", "-d"]
+CMD [ "uv", "run", "--directory", "/app/Plot5D", "/app/Plot5D/main.py"]
