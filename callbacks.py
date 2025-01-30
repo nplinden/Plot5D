@@ -89,7 +89,6 @@ clientside_callback(
 
 clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="update_subplot"),
-    # Output("mainplot", "figure"),
     Output("mainplot-storage", "data"),
     Output("mainplot", "style"),
     Input("x-slct", "value"),
@@ -100,6 +99,7 @@ clientside_callback(
     Input("col-slct", "value"),
     Input("col-value-slct", "value"),
     Input("filter-store", "data"),
+    Input("alias-store", "data"),
     State("storage", "data"),
     State("mainplot", "style"),
 )
@@ -277,6 +277,16 @@ def settings_overlay(n_clicks, opened):
     return not opened
 
 
+@callback(
+    Output("alias-modal", "opened"),
+    Input("alias-btn", "n_clicks"),
+    State("alias-modal", "opened"),
+    prevent_initial_call=True,
+)
+def alias_overlay(n_clicks, opened):
+    return not opened
+
+
 def filter_component(label, id):
     return (
         dmc.Select(
@@ -320,10 +330,3 @@ def get_filters(values, mins, maxs):
     if all(v is None for v in values):
         raise PreventUpdate
     return {k: {"min": mins[i], "max": maxs[i]} for (i, k) in enumerate(values)}
-
-
-@callback(Input("filter-store", "data"))
-def print_filter_store(data):
-    if not data:
-        raise PreventUpdate
-    print(data)

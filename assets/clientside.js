@@ -73,6 +73,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       col_dropdown,
       col_val_dropdown,
       filters,
+      aliases,
       data,
       style
     ) {
@@ -129,7 +130,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
           colorbar: {
             xref: "paper",
             x: 1.07,
-            title: color,
+            title: aliases[color] || color,
           },
         },
       };
@@ -146,12 +147,12 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
           indexArray[irow][icol] = index;
           if (icol == 0) {
             layout[`yaxis${index}`] = {
-              title: y,
+              title: aliases[y] || y,
             };
           }
           if (irow == row_val_dropdown.length - 1) {
             layout[`xaxis${index}`] = {
-              title: x,
+              title: aliases[x] || x,
             };
           }
           const toplot = row_candidates.filter((v) => v[col_dropdown] == col);
@@ -184,7 +185,9 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
           x: 1.05,
           xref: "paper",
           yref: "paper",
-          text: `${row_dropdown}=${row_val_dropdown[irow]}`,
+          text: `${aliases[row_dropdown] || row_dropdown}=${
+            row_val_dropdown[irow]
+          }`,
           font: { weight: 700 }, // bold
           textangle: 90,
           xanchor: "center",
@@ -199,7 +202,9 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
           y: 1.05,
           xref: "paper",
           yref: "paper",
-          text: `${col_dropdown}=${col_val_dropdown[icol]}`,
+          text: `${aliases[col_dropdown] || col_dropdown}=${
+            col_val_dropdown[icol]
+          }`,
           font: { weight: 700 }, // bold
           xanchor: "center",
           ax: 0,

@@ -1,5 +1,6 @@
 import dash_mantine_components as dmc
 from dash import html, dcc
+from components.alias import alias
 
 colors = dmc.DEFAULT_THEME["colors"]
 
@@ -9,7 +10,7 @@ def navbar():
         id="navbar",
         children=dmc.ScrollArea(
             [
-                "",
+                dmc.Title("State Management", 3),
                 dcc.Upload(
                     id="state_upload",
                     children=html.Div(
@@ -25,6 +26,20 @@ def navbar():
                     id="download-state-btn",
                 ),
                 dcc.Download(id="download-state"),
+                dmc.Title("Data Selection", 3, mt="sm"),
+                dmc.Button(
+                    "Set Column Aliases",
+                    mt="sm",
+                    color="blue",
+                    w="100%",
+                    id="alias-btn",
+                ),
+                dmc.Modal(
+                    title=alias["title"],
+                    children=alias["children"],
+                    id="alias-modal",
+                    size="30%",
+                ),
                 dmc.Select(
                     label="Row", placeholder="Discrete Valued QOI", id="row-slct", data=[], mt="sm", searchable=True
                 ),
