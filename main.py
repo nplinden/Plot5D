@@ -13,9 +13,7 @@ parser = ap.ArgumentParser(prog="Plot5D", description="A plotting tool for your 
 parser.add_argument("-p", "--port", help="A port for the debug server", type=int)
 parser.add_argument("-d", "--debug", help="Run Flask server in debug mode", action="store_true")
 
-app = Dash(
-    __name__,
-)
+app = Dash(__name__, title="Plot5D")
 app.layout = appshell()
 server = app.server
 

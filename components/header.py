@@ -22,6 +22,24 @@ theme_toggle = dmc.ActionIcon(
     id="color-scheme-toggle",
     size="lg",
 )
+
+navbar_toggle = dmc.ActionIcon(
+    [
+        DashIconify(
+            icon="material-symbols:left-panel-close-rounded",
+            width=25,
+            id="navbar-closed-icon",
+            style={"display": "block"},
+        ),
+        DashIconify(
+            icon="material-symbols:left-panel-open-rounded", width=25, id="navbar-open-icon", style={"display": "none"}
+        ),
+    ],
+    variant="transparent",
+    id="navbar-toggle",
+    size="lg",
+)
+
 helper = dmc.ActionIcon(DashIconify(icon="clarity:help-line", width=25), variant="subtle", size="lg", id="help")
 
 settings = dmc.ActionIcon(
@@ -35,17 +53,16 @@ def header():
             [
                 dmc.Group(
                     [
-                        dmc.Burger(
-                            id="burger",
-                            size="sm",
-                            hiddenFrom="sm",
-                            opened=False,
+                        dmc.Image(
+                            src="assets/logo.png",
+                            h="60",
                         ),
-                        dmc.Title("Plot5D by Nicolas Linden", c="blue"),
+                        dmc.Title("by Nicolas Linden", c="blue"),
                     ]
                 ),
                 dmc.Group(
                     [
+                        navbar_toggle,
                         settings,
                         helper,
                         dcc.Store(id="color-scheme-storage", storage_type="local"),

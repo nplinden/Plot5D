@@ -195,16 +195,6 @@ clientside_callback(
 )
 
 
-@callback(
-    Output("appshell", "navbar"),
-    Input("burger", "opened"),
-    State("appshell", "navbar"),
-)
-def navbar_is_open(opened, navbar):
-    navbar["collapsed"] = {"mobile": not opened}
-    return navbar
-
-
 clientside_callback(
     """function(n_clicks, theme) {
         console.log(n_clicks);
@@ -217,6 +207,32 @@ clientside_callback(
     State("color-scheme-storage", "data"),
     prevent_initial_call=True,
 )
+
+
+@callback(
+    Output("appshell", "navbar"),
+    Output("navbar-open-icon", "style"),
+    Output("navbar-closed-icon", "style"),
+    Input("navbar-toggle", "n_clicks"),
+    State("navbar-open-icon", "style"),
+    State("navbar-closed-icon", "style"),
+    State("appshell", "navbar"),
+)
+def toggle_navbar(n_clicks, open_style, closed_style, navbar):
+    _open_style = open_style
+    _closed_style = closed_style
+    if _open_style["display"] == "none":
+        _open_style["display"] = "block"
+    else:
+        _open_style["display"] = "none"
+    if _closed_style["display"] == "none":
+        _closed_style["display"] = "block"
+    else:
+        _closed_style["display"] = "none"
+
+    navbar["collapsed"] = {"desktop": _closed_style["display"] == "block"}
+    return navbar, _open_style, _closed_style
+
 
 clientside_callback(
     "function(colorScheme) {return colorScheme}",
