@@ -35,14 +35,8 @@ def mainpanel():
             ),
             dcc.Store(id="storage", storage_type="memory"),
             dcc.Store(id="mainplot-storage", storage_type="memory"),
-            dcc.Graph(
-                id="mainplot",
-                style={"width": "90h", "height": "90vh", "display": "none"},
-            ),
+            dcc.Graph(id="mainplot", style={"width": "90h", "height": "90vh", "display": "none"}, mathjax=True),
             dcc.Store(id="spider-storage", storage_type="memory"),
-            dcc.Graph(
-                id="spider",
-                style={"width": "90h", "height": "90vh", "display": "none"},
-            ),
+            dcc.Graph(id="spider", style={"width": "90h", "height": "90vh", "display": "none"}, mathjax=True),
         ]
     )

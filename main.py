@@ -13,7 +13,11 @@ parser = ap.ArgumentParser(prog="Plot5D", description="A plotting tool for your 
 parser.add_argument("-p", "--port", help="A port for the debug server", type=int)
 parser.add_argument("-d", "--debug", help="Run Flask server in debug mode", action="store_true")
 
-app = Dash(__name__, title="Plot5D")
+app = Dash(
+    __name__,
+    title="Plot5D",
+    external_scripts=["https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"],
+)
 app.layout = appshell()
 server = app.server
 
