@@ -245,11 +245,12 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       affix_style
     ) {
       console.log("Entering build_spider callback");
-      if (!selected) {
-        return window.dash_clientside.no_update;
+      let values;
+      if (selected) {
+        values = selected.points.map((v) => v.customdata).map((v) => data[v]);
+      } else {
+        values = data;
       }
-      let idx = selected.points.map((v) => v.customdata);
-      let values = idx.map((v) => data[v]);
 
       if (!spider_slct) {
         return window.dash_clientside.no_update;
@@ -263,7 +264,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
           values: dim_values,
         });
       }
-      const npoints = idx.length;
+      const npoints = values.length;
 
       const pardata = {
         type: "parcoords",
