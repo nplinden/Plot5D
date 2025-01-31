@@ -178,16 +178,24 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       layout["title"] = { text: `Number of data points: ${count}` };
 
       let annotations = [];
-      console.log(row_dropdown);
       for (let irow in row_val_dropdown) {
+        let val;
+        if (aliases[row_dropdown]) {
+          if (
+            aliases[row_dropdown].slice(0, 1) == "$" &&
+            aliases[row_dropdown].slice(-1) == "$"
+          ) {
+            const content = aliases[row_dropdown].slice(1, -1);
+            val = `\$\\mathbf{${content}=${row_val_dropdown[irow]}}\$`;
+          }
+        }
+        const text = val ? val : `${row_dropdown}=${row_val_dropdown[irow]}`;
         annotations.push({
           y: 1 - (2 * irow + 1) / 2 / row_val_dropdown.length,
           x: 1.05,
           xref: "paper",
           yref: "paper",
-          text: `${aliases[row_dropdown] || row_dropdown}=${
-            row_val_dropdown[irow]
-          }`,
+          text: text,
           font: { weight: 700 }, // bold
           textangle: 90,
           xanchor: "center",
@@ -197,14 +205,23 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         });
       }
       for (let icol in col_val_dropdown) {
+        let val;
+        if (aliases[col_dropdown]) {
+          if (
+            aliases[col_dropdown].slice(0, 1) == "$" &&
+            aliases[col_dropdown].slice(-1) == "$"
+          ) {
+            const content = aliases[col_dropdown].slice(1, -1);
+            val = `\$\\mathbf{${content}=${col_val_dropdown[icol]}}\$`;
+          }
+        }
+        const text = val ? val : `${col_dropdown}=${col_val_dropdown[icol]}`;
         annotations.push({
           x: (2 * icol + 1) / 2 / col_val_dropdown.length,
           y: 1.05,
           xref: "paper",
           yref: "paper",
-          text: `${aliases[col_dropdown] || col_dropdown}=${
-            col_val_dropdown[icol]
-          }`,
+          text: text,
           font: { weight: 700 }, // bold
           xanchor: "center",
           ax: 0,
