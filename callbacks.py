@@ -8,6 +8,7 @@ import pandas as pd
 from io import StringIO
 import json
 import numpy as np
+import csv
 
 
 def generate_sample(maxval, nrows):
@@ -45,17 +46,20 @@ def store_data(contents, filename):
         raise PreventUpdate
     _, string = contents.split(",")
     decoded = base64.b64decode(string).decode("utf-8")
-    df = pd.read_csv(StringIO(decoded))
+    delim = csv.Sniffer().sniff(StringIO(decoded).read(4096)).delimiter
+    df = pd.read_csv(StringIO(decoded), delimiter=delim)
     df["_index"] = df.index
     return df.to_dict("records"), {"display": "none"}, False
 
 
-clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="loading_overlay"),
+@callback(
     Output("loading-overlay", "visible", allow_duplicate=True),
     Input("df_upload", "filename"),
     prevent_initial_call=True,
 )
+def loading_overlay(filename):
+    return True
+
 
 clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="update_dropdown"),
