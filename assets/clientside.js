@@ -1,8 +1,5 @@
 window.dash_clientside = Object.assign({}, window.dash_clientside, {
   clientside: {
-    loading_overlay: function (filename) {
-      return true;
-    },
     update_dropdown: function (data) {
       if (data.length === 0 || data === undefined) {
         return [];
