@@ -1,7 +1,6 @@
 import os
 import dash
 from dash import Dash
-import socket
 from components.appshell import appshell
 from callbacks import *
 
@@ -21,23 +20,13 @@ app = Dash(
 app.layout = appshell()
 server = app.server
 
-
-def get_port():
-    sock = socket.socket()
-    sock.bind(("", 0))
-    return sock.getsockname()[1]
-
-
 if __name__ == "__main__":
     args = parser.parse_args()
-    # Vérifier si la variable d'environnement PORTTCP est définie
-    port_env = os.getenv("PORTTCP")
-    if port_env is not None:
-        port = int(port_env)
-    elif args.port is None:
-        port = get_port()
-    else:
+    if args.port is not None:
         port = args.port
+    elif os.getenv("PORTTCP") is not None:
+        port = os.getenv("PORTTCP")
+    else:
+        port = 8050
 
-    # Lancer l'application
     app.run(debug=args.debug, port=port, host="0.0.0.0")
