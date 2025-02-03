@@ -37,6 +37,7 @@ def download_sample(n_clicks, data):
     Output("storage", "data"),
     Output("df_upload", "style"),
     Output("loading-overlay", "visible", allow_duplicate=True),
+    Output("metadata-storage", "data"),
     Input("df_upload", "contents"),
     State("df_upload", "filename"),
     prevent_initial_call=True,
@@ -48,8 +49,12 @@ def store_data(contents, filename):
     decoded = base64.b64decode(string).decode("utf-8")
     delim = csv.Sniffer().sniff(StringIO(decoded).read(4096)).delimiter
     df = pd.read_csv(StringIO(decoded), delimiter=delim)
+    metadata = {
+        "discrete": list(df.columns[df.nunique() / len(df) <= 0.05]),
+        "continuous": list(df.columns[df.nunique() / len(df) > 0.05]),
+    }
     df["_index"] = df.index
-    return df.to_dict("records"), {"display": "none"}, False
+    return df.to_dict("records"), {"display": "none"}, False, metadata
 
 
 @callback(
@@ -70,11 +75,12 @@ clientside_callback(
     Output("color-slct", "data"),
     Output("spider-slct", "data"),
     Input("storage", "data"),
+    Input("metadata-storage", "data"),
     prevent_initial_call=True,
 )
 
 clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="update_row_dropdown"),
+    ClientsideFunction(namespace="clientside", function_name="updateRowSelect"),
     Output("row-value-slct", "data"),
     Output("row-value-slct", "value"),
     Input("row-slct", "value"),
@@ -92,7 +98,7 @@ clientside_callback(
 )
 
 clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="update_subplot"),
+    ClientsideFunction(namespace="clientside", function_name="buildScatter"),
     Output("mainplot-storage", "data"),
     Output("mainplot", "style"),
     Input("x-slct", "value"),
