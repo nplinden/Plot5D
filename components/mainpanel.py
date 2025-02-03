@@ -82,6 +82,7 @@ def mainpanel():
                     dmc.TabsPanel(
                         children=[
                             dcc.Store(id="mainplot-storage", storage_type="memory"),
+                            dcc.Store(id="mainplot-selection-storage", storage_type="memory"),
                             dcc.Graph(
                                 id="mainplot", style={"width": "90h", "height": "90vh", "display": "none"}, mathjax=True
                             ),

@@ -5,7 +5,7 @@ colors = dmc.DEFAULT_THEME["colors"]
 
 mainplot_navbar = dmc.Box(
     children=[
-        dmc.Title("Data Selection", 3, mt="sm"),
+        dmc.Title("5DPlot Selection", 3, mt="sm"),
         dmc.Select(label="Row", placeholder="Discrete Valued QOI", id="row-slct", data=[], mt="sm", searchable=True),
         dmc.MultiSelect(placeholder="Values", id="row-value-slct", data=[], mt="sm", searchable=True),
         dmc.Select(label="Column", placeholder="Discrete Valued QOI", id="col-slct", data=[], mt="sm", searchable=True),
@@ -19,6 +19,7 @@ mainplot_navbar = dmc.Box(
 
 spider_navbar = dmc.Box(
     children=[
+        dmc.Title("Spider Selection", 3, mt="sm"),
         dmc.MultiSelect(
             label="Spider Columns", placeholder="Columns", id="spider-slct", data=[], mt="sm", searchable=True
         ),

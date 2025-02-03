@@ -98,7 +98,7 @@ clientside_callback(
 )
 
 clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="buildScatter"),
+    ClientsideFunction(namespace="clientside", function_name="buildMainplot"),
     Output("mainplot-storage", "data"),
     Output("mainplot", "style"),
     Input("x-slct", "value"),
@@ -179,7 +179,7 @@ clientside_callback(
     Output("spider-slct-memory", "data"),
     Output("spider", "style"),
     Output("download-selection-affix", "style"),
-    Input("mainplot", "selectedData"),
+    Input("mainplot-selection-storage", "data"),
     Input("spider-slct", "value"),
     State("data-storage", "data"),
     State("spider", "style"),
@@ -199,8 +199,7 @@ clientside_callback(
     Input("download-selection-btn", "n_clicks"),
     State("spider-slct-memory", "data"),
     State("spider-filters-memory", "data"),
-    State("mainplot", "selectedData"),
-    State("data-storage", "data"),
+    State("mainplot-selection-storage", "data"),
     prevent_initial_call=True,
 )
 
@@ -321,3 +320,18 @@ def display_spider_navbar(active_tab):
     if active_tab == "spider":
         return {"display": "block"}
     return {"display": "none"}
+
+
+clientside_callback(
+    ClientsideFunction("clientside", "storeMainplotSelection"),
+    Output("mainplot-selection-storage", "data"),
+    Input("mainplot", "selectedData"),
+    State("data-storage", "data"),
+)
+
+clientside_callback(
+    ClientsideFunction("clientside", "storeSpiderSelection"),
+    Input("spider-slct-memory", "data"),
+    Input("spider-filters-memory", "data"),
+    Input("mainplot-selection-storage", "data"),
+)

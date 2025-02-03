@@ -88,7 +88,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       return [unique, value];
     },
 
-    buildScatter: function (
+    buildMainplot: function (
       x,
       y,
       color,
@@ -170,6 +170,15 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       return [fig, new_style];
     },
 
+    storeMainplotSelection: function (selected, data) {
+      if (!selected) {
+        return window.dash_clientside.no_update;
+      }
+      let idx = selected.points.map((v) => v.customdata);
+      let values = idx.map((v) => data[v]);
+      return values;
+    },
+
     buildSpider: function (
       selected,
       spider_slct,
@@ -185,7 +194,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       console.log("Entering buildSpider callback");
       let values;
       if (selected) {
-        values = selected.points.map((v) => v.customdata).map((v) => data[v]);
+        values = selected;
       } else {
         values = data;
       }
@@ -252,20 +261,30 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         }
         data[idim] = ranges;
       }
-      console.log(ranges);
       return data;
+    },
+
+    storeSpiderSelection: function (
+      spider_slct_memory,
+      spider_filters_memory,
+      selected
+    ) {
+      let values = selected;
+
+      console.log("coucou");
+      console.log(JSON.stringify(spider_slct_memory, null, "\t"));
+      console.log(JSON.stringify(spider_filters_memory, null, "\t"));
+      values = filterFromSpider(spider_filters_memory, values);
+      console.log(JSON.stringify(values, null, "\t"));
     },
 
     download_filtered_csv: function (
       n_clicks,
       spider_slct_memory,
       spider_filters_memory,
-      selected,
-      data
+      selected
     ) {
-      // Applying 5DPlot selection to the data
-      let idx = selected.points.map((v) => v.customdata);
-      let values = idx.map((v) => data[v]);
+      let values = selected;
 
       // Applying spider graph range filters to the data
       if (
@@ -613,12 +632,23 @@ function getMin(arr) {
   return max;
 }
 
-const filterDisjoint = function (filters, arr) {
-  let bools = new Array(arr).fill(false);
-  for (const filter of filters) {
-    for (const i in arr) {
-      if (arr[i] < filter[1] && arr[i] > filter[0]) {
-        bools[i] = true;
+const inDisjointed = function (value, disjointed) {
+  for (interval of disjointed) {
+    if (value < interval[1] && value > interval[0]) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const filterFromSpider = function (filters, arr) {
+  let bools = new Array(arr).fill(true);
+
+  outer: for (const iobj in arr) {
+    for (const [key, value] of Object.entries(filters)) {
+      if (!inDisjointed(arr[iobj][key], value)) {
+        bools[iobj] = false;
+        continue outer;
       }
     }
   }
