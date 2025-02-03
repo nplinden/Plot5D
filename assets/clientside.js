@@ -170,7 +170,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       return [fig, new_style];
     },
 
-    build_spider: function (
+    buildSpider: function (
       selected,
       spider_slct,
       data,
@@ -182,7 +182,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         return window.dash_clientside.no_update;
       }
 
-      console.log("Entering build_spider callback");
+      console.log("Entering buildSpider callback");
       let values;
       if (selected) {
         values = selected.points.map((v) => v.customdata).map((v) => data[v]);
@@ -194,7 +194,6 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       for (column of spider_slct) {
         const dim_values = values.map((v) => v[column]);
         dimensions.push({
-          range: [Math.min(...dim_values), Math.max(...dim_values)],
           label: column,
           values: dim_values,
         });
@@ -214,9 +213,6 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
           text: `Number of data points: ${npoints}`,
         },
       };
-      console.log(
-        JSON.stringify({ data: [pardata], layout: layout }, null, "\t")
-      );
       console.log(JSON.stringify({ ...spider_slct }, null, "\t"));
       let new_spider_style = { ...spider_style };
       new_spider_style.display = "block";
@@ -233,7 +229,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       ];
     },
 
-    store_spider_filters: function (restyle_data, data) {
+    storeSpiderFilters: function (restyle_data, data) {
       if (!restyle_data) {
         return window.dash_clientside.no_update;
       }
@@ -594,4 +590,37 @@ const buildScatterRowsPlot = function (
   layout["annotations"] = annotations;
 
   return { data: plotdata, layout: layout };
+};
+
+// built in Math.max fails on very big arrays
+function getMax(arr) {
+  let len = arr.length;
+  let max = -Infinity;
+
+  while (len--) {
+    max = arr[len] > max ? arr[len] : max;
+  }
+  return max;
+}
+
+function getMin(arr) {
+  let len = arr.length;
+  let min = +Infinity;
+
+  while (len--) {
+    max = arr[len] < min ? arr[len] : min;
+  }
+  return max;
+}
+
+const filterDisjoint = function (filters, arr) {
+  let bools = new Array(arr).fill(false);
+  for (const filter of filters) {
+    for (const i in arr) {
+      if (arr[i] < filter[1] && arr[i] > filter[0]) {
+        bools[i] = true;
+      }
+    }
+  }
+  return arr.filter((_, i) => bools[i]);
 };
