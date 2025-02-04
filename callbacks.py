@@ -194,12 +194,10 @@ clientside_callback(
 )
 
 clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="download_filtered_csv"),
+    ClientsideFunction(namespace="clientside", function_name="DownloadFilteredCsv"),
     Output("download-selection", "data"),
     Input("download-selection-btn", "n_clicks"),
-    State("spider-slct-memory", "data"),
-    State("spider-filters-memory", "data"),
-    State("mainplot-selection-storage", "data"),
+    State("spider-selection-storage", "data"),
     prevent_initial_call=True,
 )
 
@@ -331,7 +329,8 @@ clientside_callback(
 
 clientside_callback(
     ClientsideFunction("clientside", "storeSpiderSelection"),
-    Input("spider-slct-memory", "data"),
+    Output("spider-selection-storage", "data"),
     Input("spider-filters-memory", "data"),
-    Input("mainplot-selection-storage", "data"),
+    State("spider-slct-memory", "data"),
+    State("mainplot-selection-storage", "data"),
 )

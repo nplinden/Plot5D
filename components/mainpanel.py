@@ -92,6 +92,7 @@ def mainpanel():
                     dmc.TabsPanel(
                         children=[
                             dcc.Store(id="spider-storage", storage_type="memory"),
+                            dcc.Store(id="spider-selection-storage", storage_type="memory"),
                             dcc.Graph(
                                 id="spider", style={"width": "90h", "height": "90vh", "display": "none"}, mathjax=True
                             ),

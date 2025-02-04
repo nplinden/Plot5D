@@ -61,7 +61,6 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         .map((v) => {
           return { value: "" + v, label: "" + v };
         });
-      console.log(unique);
       return [unique, value];
     },
 
@@ -108,7 +107,6 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       console.log(`row_value_dropdown=${rowvals}`);
       console.log(`col_dropdown=${colname}`);
       console.log(`col_value_dropdown=${colvals}`);
-      console.log(`aliases=${JSON.stringify(aliases, null, "\t")}`);
       if (x === null || y === null) {
         return window.dash_clientside.no_update;
       }
@@ -222,14 +220,14 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
           text: `Number of data points: ${npoints}`,
         },
       };
-      console.log(JSON.stringify({ ...spider_slct }, null, "\t"));
+      // console.log(JSON.stringify({ ...spider_slct }, null, "\t"));
       let new_spider_style = { ...spider_style };
       new_spider_style.display = "block";
       let new_affix_style = { ...affix_style };
       new_affix_style.display = "block";
-      console.log(
-        `new_affix_style=${JSON.stringify(new_affix_style, null, "\t")}`
-      );
+      // console.log(
+      //   `new_affix_style=${JSON.stringify(new_affix_style, null, "\t")}`
+      // );
       return [
         { data: [pardata], layout: layout },
         { ...spider_slct },
@@ -265,59 +263,36 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
     },
 
     storeSpiderSelection: function (
-      spider_slct_memory,
       spider_filters_memory,
+      spider_slct_memory,
       selected
     ) {
       let values = selected;
 
-      console.log("coucou");
-      console.log(JSON.stringify(spider_slct_memory, null, "\t"));
-      console.log(JSON.stringify(spider_filters_memory, null, "\t"));
-      values = filterFromSpider(spider_filters_memory, values);
-      console.log(JSON.stringify(values, null, "\t"));
+      console.log(
+        `spider_slct_memory=${JSON.stringify(spider_slct_memory, null, "\t")}`
+      );
+      values = filterFromSpider(
+        spider_filters_memory,
+        values,
+        spider_slct_memory
+      );
+      return values;
     },
 
-    download_filtered_csv: function (
-      n_clicks,
-      spider_slct_memory,
-      spider_filters_memory,
-      selected
-    ) {
-      let values = selected;
-
-      // Applying spider graph range filters to the data
-      if (
-        spider_filters_memory !== undefined &&
-        spider_slct_memory !== undefined
-      ) {
-        for (const [col_idx, ranges] of Object.entries(spider_filters_memory)) {
-          col_name = spider_slct_memory[col_idx];
-          queries = [];
-          values = values.filter((v) => {
-            let ok = false;
-            for (const r of ranges) {
-              const val = v[col_name];
-
-              if (val < r[1] && val > r[0]) {
-                ok = true;
-              }
-            }
-            return ok;
-          });
-        }
-      }
-
-      if (values.length === 0) {
+    DownloadFilteredCsv: function (n_clicks, spiderSelection) {
+      if (spiderSelection.length === 0) {
         return window.dash_clientside.no_update;
       }
+      console.log(spiderSelection);
 
-      const columns = Object.keys(values[0]).filter((v) => v != "_index");
+      const columns = Object.keys(spiderSelection[0]).filter(
+        (v) => v != "_index"
+      );
       let csv = columns.join(",") + "\n";
-      for (record of values) {
+      for (record of spiderSelection) {
         csv += recordToLine(columns, record);
       }
-      console.log(`${csv}`);
       return {
         content: csv,
         filename: "selection.csv",
@@ -339,7 +314,7 @@ const applyFilter = function (data, key, min, max) {
 };
 
 const applyFilters = function (data, filters) {
-  console.log(`filters=${JSON.stringify(filters, null, "\t")}`);
+  // console.log(`filters=${JSON.stringify(filters, null, "\t")}`);
   if (!filters) {
     return data;
   }
@@ -641,12 +616,11 @@ const inDisjointed = function (value, disjointed) {
   return false;
 };
 
-const filterFromSpider = function (filters, arr) {
-  let bools = new Array(arr).fill(true);
-
+const filterFromSpider = function (filters, arr, idtoColumn) {
+  let bools = new Array(arr.length).fill(true);
   outer: for (const iobj in arr) {
     for (const [key, value] of Object.entries(filters)) {
-      if (!inDisjointed(arr[iobj][key], value)) {
+      if (!inDisjointed(arr[iobj][idtoColumn[key]], value)) {
         bools[iobj] = false;
         continue outer;
       }
