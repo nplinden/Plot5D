@@ -4,6 +4,7 @@ from components.text import helper
 from components.settings import settings
 from components.alias import alias
 from components.filters import filters
+import dash_ag_grid as dag
 
 colors = dmc.DEFAULT_THEME["colors"]
 
@@ -34,6 +35,7 @@ def mainpanel():
                             dmc.TabsTab("Home", value="home"),
                             dmc.TabsTab("5DPlot", value="mainplot"),
                             dmc.TabsTab("SpiderPlot", value="spider"),
+                            dmc.TabsTab("Table", value="table"),
                         ]
                     ),
                     dmc.TabsPanel(
@@ -98,6 +100,14 @@ def mainpanel():
                             ),
                         ],
                         value="spider",
+                    ),
+                    dmc.TabsPanel(
+                        children=[
+                            dag.AgGrid(
+                                id="table", className="ag-theme-quartz-dark", dashGridOptions={"pagination": True}
+                            )
+                        ],
+                        value="table",
                     ),
                 ],
                 id="tabs",

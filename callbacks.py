@@ -324,7 +324,7 @@ clientside_callback(
     ClientsideFunction("clientside", "storeMainplotSelection"),
     Output("mainplot-selection-storage", "data"),
     Input("mainplot", "selectedData"),
-    State("data-storage", "data"),
+    Input("data-storage", "data"),
 )
 
 clientside_callback(
@@ -334,3 +334,17 @@ clientside_callback(
     State("spider-slct-memory", "data"),
     State("mainplot-selection-storage", "data"),
 )
+
+
+@callback(
+    Output("table", "rowData"),
+    Output("table", "columnDefs"),
+    Input("spider-selection-storage", "data"),
+)
+def build_table(data):
+    print(data)
+    if data is None:
+        raise PreventUpdate
+    if len(data) == 0:
+        raise PreventUpdate
+    return data, [{"field": k} for k in data[0].keys() if k != "_index"]

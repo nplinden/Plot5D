@@ -170,7 +170,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
 
     storeMainplotSelection: function (selected, data) {
       if (!selected) {
-        return window.dash_clientside.no_update;
+        return data;
       }
       let idx = selected.points.map((v) => v.customdata);
       let values = idx.map((v) => data[v]);
