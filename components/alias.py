@@ -21,7 +21,7 @@ def new_alias(id, select_data):
     Output("alias-stack", "children", allow_duplicate=True),
     Output("alias-rows-store", "data", allow_duplicate=True),
     Input("alias-plus", "n_clicks"),
-    State("storage", "data"),
+    State("data-storage", "data"),
     State("alias-rows-store", "data"),
     prevent_initial_call=True,
 )
@@ -53,36 +53,32 @@ def remove_alias(n_clicks, rows_storage):
 
 @callback(
     Output("alias-store", "data"),
-    Input("alias-modal", "opened"),
+    Input("alias-apply", "n_clicks"),
     State({"type": "alias-slct", "index": ALL}, "value"),
     State({"type": "alias-text", "index": ALL}, "value"),
     State("alias-store", "data"),
     prevent_initial_call=True,
 )
-def set_alias(opened, columns, aliases, alias_data):
-    if opened:
-        raise PreventUpdate
+def set_alias(n_clicks, columns, aliases, alias_data):
     if alias_data is None:
         alias_data = {}
     return {k: v for (k, v) in zip(columns, aliases)}
 
 
-alias = {
-    "title": "Add Custom Column Aliases",
-    "children": [
-        dmc.Stack([], align="center", gap="sm", id="alias-stack"),
-        dcc.Store(id="alias-rows-store", storage_type="memory"),
-        dcc.Store(id="alias-store", storage_type="memory", data={}),
-        dmc.Center(
-            children=[
-                dmc.ActionIcon(
-                    DashIconify(icon="clarity:minus-line", width=25), variant="subtle", size="lg", id="alias-minus"
-                ),
-                dmc.ActionIcon(
-                    DashIconify(icon="clarity:plus-line", width=25), variant="subtle", size="lg", id="alias-plus"
-                ),
-            ],
-            mt="sm",
-        ),
-    ],
-}
+alias = [
+    dmc.Stack([], align="left", gap="sm", id="alias-stack", mt="sm"),
+    dcc.Store(id="alias-rows-store", storage_type="memory"),
+    dcc.Store(id="alias-store", storage_type="memory", data={}),
+    dmc.Group(
+        children=[
+            dmc.ActionIcon(
+                DashIconify(icon="clarity:minus-line", width=25), variant="subtle", size="lg", id="alias-minus"
+            ),
+            dmc.ActionIcon(
+                DashIconify(icon="clarity:plus-line", width=25), variant="subtle", size="lg", id="alias-plus"
+            ),
+            dmc.Button("Apply", id="alias-apply", color="blue"),
+        ],
+        mt="sm",
+    ),
+]

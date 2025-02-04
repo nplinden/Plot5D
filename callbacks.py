@@ -1,6 +1,5 @@
-from dash import Input, Output, State, callback, clientside_callback, ClientsideFunction, Patch, ALL
+from dash import Input, Output, State, callback, clientside_callback, ClientsideFunction, html
 from dash_mantine_components import add_figure_templates
-import dash_mantine_components as dmc
 from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
 import base64
@@ -34,10 +33,11 @@ def download_sample(n_clicks, data):
 
 
 @callback(
-    Output("storage", "data"),
-    Output("df_upload", "style"),
+    Output("data-storage", "data"),
+    Output("df_upload", "children"),
     Output("loading-overlay", "visible", allow_duplicate=True),
     Output("metadata-storage", "data"),
+    Output("df_upload", "className"),
     Input("df_upload", "contents"),
     State("df_upload", "filename"),
     prevent_initial_call=True,
@@ -54,7 +54,7 @@ def store_data(contents, filename):
         "continuous": list(df.columns[df.nunique() / len(df) > 0.05]),
     }
     df["_index"] = df.index
-    return df.to_dict("records"), {"display": "none"}, False, metadata
+    return df.to_dict("records"), html.Div(f"{filename}"), False, metadata, "uploaded"
 
 
 @callback(
@@ -74,7 +74,7 @@ clientside_callback(
     Output("y-slct", "data"),
     Output("color-slct", "data"),
     Output("spider-slct", "data"),
-    Input("storage", "data"),
+    Input("data-storage", "data"),
     Input("metadata-storage", "data"),
     prevent_initial_call=True,
 )
@@ -84,7 +84,7 @@ clientside_callback(
     Output("row-value-slct", "data"),
     Output("row-value-slct", "value"),
     Input("row-slct", "value"),
-    State("storage", "data"),
+    State("data-storage", "data"),
     State("state_upload", "contents"),
 )
 
@@ -93,12 +93,12 @@ clientside_callback(
     Output("col-value-slct", "data"),
     Output("col-value-slct", "value"),
     Input("col-slct", "value"),
-    State("storage", "data"),
+    State("data-storage", "data"),
     State("state_upload", "contents"),
 )
 
 clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="buildScatter"),
+    ClientsideFunction(namespace="clientside", function_name="buildMainplot"),
     Output("mainplot-storage", "data"),
     Output("mainplot", "style"),
     Input("x-slct", "value"),
@@ -110,7 +110,7 @@ clientside_callback(
     Input("col-value-slct", "value"),
     Input("filter-store", "data"),
     Input("alias-store", "data"),
-    State("storage", "data"),
+    State("data-storage", "data"),
     State("mainplot", "style"),
 )
 
@@ -174,33 +174,30 @@ def load_state(data):
 
 
 clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="build_spider"),
+    ClientsideFunction(namespace="clientside", function_name="buildSpider"),
     Output("spider-storage", "data"),
     Output("spider-slct-memory", "data"),
     Output("spider", "style"),
     Output("download-selection-affix", "style"),
-    Input("mainplot", "selectedData"),
+    Input("mainplot-selection-storage", "data"),
     Input("spider-slct", "value"),
-    State("storage", "data"),
+    State("data-storage", "data"),
     State("spider", "style"),
     State("download-selection-btn", "style"),
 )
 
 clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="store_spider_filters"),
+    ClientsideFunction(namespace="clientside", function_name="storeSpiderFilters"),
     Output("spider-filters-memory", "data"),
     Input("spider", "restyleData"),
     State("spider-filters-memory", "data"),
 )
 
 clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="download_filtered_csv"),
+    ClientsideFunction(namespace="clientside", function_name="DownloadFilteredCsv"),
     Output("download-selection", "data"),
     Input("download-selection-btn", "n_clicks"),
-    State("spider-slct-memory", "data"),
-    State("spider-filters-memory", "data"),
-    State("mainplot", "selectedData"),
-    State("storage", "data"),
+    State("spider-selection-storage", "data"),
     prevent_initial_call=True,
 )
 
@@ -304,55 +301,50 @@ def settings_overlay(n_clicks, opened):
 
 
 @callback(
-    Output("alias-modal", "opened"),
-    Input("alias-btn", "n_clicks"),
-    State("alias-modal", "opened"),
-    prevent_initial_call=True,
+    Output("mainplot-navbar", "style"),
+    Input("tabs", "value"),
 )
-def alias_overlay(n_clicks, opened):
-    return not opened
-
-
-def filter_component(label, id):
-    return (
-        dmc.Select(
-            label=label, placeholder="QOI", id={"type": "filter-slct", "index": id}, data=[], mt="sm", searchable=True
-        ),
-        dmc.Group(
-            grow=True,
-            wrap="nowrap",
-            children=[
-                dmc.NumberInput(placeholder="Min", mt="sm", id={"type": "filter-min", "index": id}),
-                dmc.NumberInput(placeholder="Max", mt="sm", id={"type": "filter-max", "index": id}),
-            ],
-        ),
-    )
+def display_mainplot_navbar(active_tab):
+    if active_tab == "mainplot":
+        return {"display": "block"}
+    return {"display": "none"}
 
 
 @callback(
-    Output("filter-div", "children"),
-    Input("add-filter-btn", "n_clicks"),
-    State("storage", "data"),
-    prevent_initial_call=True,
+    Output("spider-navbar", "style"),
+    Input("tabs", "value"),
 )
-def add_filter(n_clicks, data):
+def display_spider_navbar(active_tab):
+    if active_tab == "spider":
+        return {"display": "block"}
+    return {"display": "none"}
+
+
+clientside_callback(
+    ClientsideFunction("clientside", "storeMainplotSelection"),
+    Output("mainplot-selection-storage", "data"),
+    Input("mainplot", "selectedData"),
+    Input("data-storage", "data"),
+)
+
+clientside_callback(
+    ClientsideFunction("clientside", "storeSpiderSelection"),
+    Output("spider-selection-storage", "data"),
+    Input("spider-filters-memory", "data"),
+    State("spider-slct-memory", "data"),
+    State("mainplot-selection-storage", "data"),
+)
+
+
+@callback(
+    Output("table", "rowData"),
+    Output("table", "columnDefs"),
+    Input("spider-selection-storage", "data"),
+)
+def build_table(data):
+    print(data)
     if data is None:
         raise PreventUpdate
-    patched_children = Patch()
-    select, group = filter_component(f"Filter #{n_clicks}", n_clicks)
-    select.data = list(data[0].keys())
-    patched_children.append(select)
-    patched_children.append(group)
-    return patched_children
-
-
-@callback(
-    Output("filter-store", "data"),
-    Input({"type": "filter-slct", "index": ALL}, "value"),
-    Input({"type": "filter-min", "index": ALL}, "value"),
-    Input({"type": "filter-max", "index": ALL}, "value"),
-)
-def get_filters(values, mins, maxs):
-    if all(v is None for v in values):
+    if len(data) == 0:
         raise PreventUpdate
-    return {k: {"min": mins[i], "max": maxs[i]} for (i, k) in enumerate(values)}
+    return data, [{"field": k} for k in data[0].keys() if k != "_index"]

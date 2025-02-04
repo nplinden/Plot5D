@@ -11,6 +11,20 @@
     cursor: pointer;
 }
 
+.uploaded {
+    width: 100%;
+    height: 60px;
+    line-height: 60px;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 5px;
+    border-color: #1867B8;
+    text-align: center;
+    margin-bottom: 16px;
+    margin-top: 16px;
+    cursor: pointer;
+}
+
 :root[data-mantine-color-scheme="dark"] #dark-theme-icon {
     display: none;
 }

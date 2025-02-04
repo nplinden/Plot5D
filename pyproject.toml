@@ -13,6 +13,7 @@ dependencies = [
     "pandas>=2.2.3",
     "dash-mantine-components>=0.15.2",
     "dash-iconify>=0.1.2",
+    "dash-ag-grid>=31.3.0",
 ]
 
 [project.scripts]

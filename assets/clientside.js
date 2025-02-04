@@ -61,7 +61,6 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         .map((v) => {
           return { value: "" + v, label: "" + v };
         });
-      console.log(unique);
       return [unique, value];
     },
 
@@ -88,7 +87,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       return [unique, value];
     },
 
-    buildScatter: function (
+    buildMainplot: function (
       x,
       y,
       color,
@@ -108,7 +107,6 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       console.log(`row_value_dropdown=${rowvals}`);
       console.log(`col_dropdown=${colname}`);
       console.log(`col_value_dropdown=${colvals}`);
-      console.log(`aliases=${JSON.stringify(aliases, null, "\t")}`);
       if (x === null || y === null) {
         return window.dash_clientside.no_update;
       }
@@ -170,7 +168,16 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       return [fig, new_style];
     },
 
-    build_spider: function (
+    storeMainplotSelection: function (selected, data) {
+      if (!selected) {
+        return data;
+      }
+      let idx = selected.points.map((v) => v.customdata);
+      let values = idx.map((v) => data[v]);
+      return values;
+    },
+
+    buildSpider: function (
       selected,
       spider_slct,
       data,
@@ -182,10 +189,10 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         return window.dash_clientside.no_update;
       }
 
-      console.log("Entering build_spider callback");
+      console.log("Entering buildSpider callback");
       let values;
       if (selected) {
-        values = selected.points.map((v) => v.customdata).map((v) => data[v]);
+        values = selected;
       } else {
         values = data;
       }
@@ -194,7 +201,6 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       for (column of spider_slct) {
         const dim_values = values.map((v) => v[column]);
         dimensions.push({
-          range: [Math.min(...dim_values), Math.max(...dim_values)],
           label: column,
           values: dim_values,
         });
@@ -214,17 +220,14 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
           text: `Number of data points: ${npoints}`,
         },
       };
-      console.log(
-        JSON.stringify({ data: [pardata], layout: layout }, null, "\t")
-      );
-      console.log(JSON.stringify({ ...spider_slct }, null, "\t"));
+      // console.log(JSON.stringify({ ...spider_slct }, null, "\t"));
       let new_spider_style = { ...spider_style };
       new_spider_style.display = "block";
       let new_affix_style = { ...affix_style };
       new_affix_style.display = "block";
-      console.log(
-        `new_affix_style=${JSON.stringify(new_affix_style, null, "\t")}`
-      );
+      // console.log(
+      //   `new_affix_style=${JSON.stringify(new_affix_style, null, "\t")}`
+      // );
       return [
         { data: [pardata], layout: layout },
         { ...spider_slct },
@@ -233,7 +236,7 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       ];
     },
 
-    store_spider_filters: function (restyle_data, data) {
+    storeSpiderFilters: function (restyle_data, data) {
       if (!restyle_data) {
         return window.dash_clientside.no_update;
       }
@@ -256,53 +259,40 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         }
         data[idim] = ranges;
       }
-      console.log(ranges);
       return data;
     },
 
-    download_filtered_csv: function (
-      n_clicks,
-      spider_slct_memory,
+    storeSpiderSelection: function (
       spider_filters_memory,
-      selected,
-      data
+      spider_slct_memory,
+      selected
     ) {
-      // Applying 5DPlot selection to the data
-      let idx = selected.points.map((v) => v.customdata);
-      let values = idx.map((v) => data[v]);
+      let values = selected;
 
-      // Applying spider graph range filters to the data
-      if (
-        spider_filters_memory !== undefined &&
-        spider_slct_memory !== undefined
-      ) {
-        for (const [col_idx, ranges] of Object.entries(spider_filters_memory)) {
-          col_name = spider_slct_memory[col_idx];
-          queries = [];
-          values = values.filter((v) => {
-            let ok = false;
-            for (const r of ranges) {
-              const val = v[col_name];
+      console.log(
+        `spider_slct_memory=${JSON.stringify(spider_slct_memory, null, "\t")}`
+      );
+      values = filterFromSpider(
+        spider_filters_memory,
+        values,
+        spider_slct_memory
+      );
+      return values;
+    },
 
-              if (val < r[1] && val > r[0]) {
-                ok = true;
-              }
-            }
-            return ok;
-          });
-        }
-      }
-
-      if (values.length === 0) {
+    DownloadFilteredCsv: function (n_clicks, spiderSelection) {
+      if (spiderSelection.length === 0) {
         return window.dash_clientside.no_update;
       }
+      console.log(spiderSelection);
 
-      const columns = Object.keys(values[0]).filter((v) => v != "_index");
+      const columns = Object.keys(spiderSelection[0]).filter(
+        (v) => v != "_index"
+      );
       let csv = columns.join(",") + "\n";
-      for (record of values) {
+      for (record of spiderSelection) {
         csv += recordToLine(columns, record);
       }
-      console.log(`${csv}`);
       return {
         content: csv,
         filename: "selection.csv",
@@ -324,7 +314,7 @@ const applyFilter = function (data, key, min, max) {
 };
 
 const applyFilters = function (data, filters) {
-  console.log(`filters=${JSON.stringify(filters, null, "\t")}`);
+  // console.log(`filters=${JSON.stringify(filters, null, "\t")}`);
   if (!filters) {
     return data;
   }
@@ -594,4 +584,47 @@ const buildScatterRowsPlot = function (
   layout["annotations"] = annotations;
 
   return { data: plotdata, layout: layout };
+};
+
+// built in Math.max fails on very big arrays
+function getMax(arr) {
+  let len = arr.length;
+  let max = -Infinity;
+
+  while (len--) {
+    max = arr[len] > max ? arr[len] : max;
+  }
+  return max;
+}
+
+function getMin(arr) {
+  let len = arr.length;
+  let min = +Infinity;
+
+  while (len--) {
+    max = arr[len] < min ? arr[len] : min;
+  }
+  return max;
+}
+
+const inDisjointed = function (value, disjointed) {
+  for (interval of disjointed) {
+    if (value < interval[1] && value > interval[0]) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const filterFromSpider = function (filters, arr, idtoColumn) {
+  let bools = new Array(arr.length).fill(true);
+  outer: for (const iobj in arr) {
+    for (const [key, value] of Object.entries(filters)) {
+      if (!inDisjointed(arr[iobj][idtoColumn[key]], value)) {
+        bools[iobj] = false;
+        continue outer;
+      }
+    }
+  }
+  return arr.filter((_, i) => bools[i]);
 };
