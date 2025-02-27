@@ -7,7 +7,6 @@ import pandas as pd
 from io import StringIO
 import json
 import numpy as np
-import csv
 
 
 def generate_sample(maxval, nrows):
@@ -47,8 +46,7 @@ def store_data(contents, filename):
         raise PreventUpdate
     _, string = contents.split(",")
     decoded = base64.b64decode(string).decode("utf-8")
-    delim = csv.Sniffer().sniff(StringIO(decoded).read(4096)).delimiter
-    df = pd.read_csv(StringIO(decoded), delimiter=delim)
+    df = pd.read_csv(StringIO(decoded))
     metadata = {
         "discrete": list(df.columns[df.nunique() / len(df) <= 0.05]),
         "continuous": list(df.columns[df.nunique() / len(df) > 0.05]),
