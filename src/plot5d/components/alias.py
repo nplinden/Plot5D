@@ -1,7 +1,7 @@
 import dash_mantine_components as dmc
-from dash_iconify import DashIconify
-from dash import callback, Input, Output, State, Patch, dcc, ALL
+from dash import ALL, Input, Output, Patch, State, callback, dcc
 from dash.exceptions import PreventUpdate
+from dash_iconify import DashIconify
 
 
 def new_alias(id, select_data):
@@ -13,8 +13,7 @@ def new_alias(id, select_data):
         searchable=True,
     )
     text = dmc.TextInput(label=None, placeholder="Alias", id={"type": "alias-text", "index": id})
-    group = dmc.Group(children=[selector, text])
-    return group
+    return dmc.Group(children=[selector, text])
 
 
 @callback(
@@ -62,7 +61,7 @@ def remove_alias(n_clicks, rows_storage):
 def set_alias(n_clicks, columns, aliases, alias_data):
     if alias_data is None:
         alias_data = {}
-    return {k: v for (k, v) in zip(columns, aliases)}
+    return dict(zip(columns, aliases, strict=False))
 
 
 alias = [

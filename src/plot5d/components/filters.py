@@ -1,7 +1,7 @@
-from dash import Input, Output, State, callback, Patch, ALL, dcc
-from dash_iconify import DashIconify
 import dash_mantine_components as dmc
+from dash import ALL, Input, Output, Patch, State, callback, dcc
 from dash.exceptions import PreventUpdate
+from dash_iconify import DashIconify
 
 
 def filter_component(id):

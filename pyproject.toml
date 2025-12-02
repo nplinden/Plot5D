@@ -33,12 +33,5 @@ convention = "google"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "N801",    # I favor ICSBEP nomenclature clarity over python naming conventions.
-    "N999",    # See N801
-    "D100",    # Module documentation is self evident in most of ICONIQE.
-    "PLR0915", # Material functions always break this.
-    "PLR2004",
-    "PLR0911",
-    "PLR0913",
-    "C901"
+    "COM812"
 ]

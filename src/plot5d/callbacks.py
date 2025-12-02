@@ -1,13 +1,14 @@
-from dash import Input, Output, State, callback, clientside_callback, ClientsideFunction, html
-from dash_mantine_components import add_figure_templates
-from dash.exceptions import PreventUpdate
-import plotly.graph_objects as go
 import base64
-import pandas as pd
-from io import StringIO
-import json
-import numpy as np
 import csv
+import json
+from io import StringIO
+
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+from dash import ClientsideFunction, Input, Output, State, callback, clientside_callback, html
+from dash.exceptions import PreventUpdate
+from dash_mantine_components import add_figure_templates
 
 
 def generate_sample(maxval, nrows):
@@ -17,8 +18,7 @@ def generate_sample(maxval, nrows):
     Q3 = np.random.choice([100, 200, 300, 400, 500], Q1.shape)
     Q4 = np.log(Q3 * np.random.normal(1, 0.2, Q3.shape)) * np.log(Q2)
     Q5 = np.astype((np.floor(Q4) % 27 % 5 + 10) * 100, int)
-    df = pd.DataFrame(data={"Q1": Q1, "Q2": Q2, "Q3": Q3, "Q4": Q4, "Q5": Q5})
-    return df
+    return pd.DataFrame(data={"Q1": Q1, "Q2": Q2, "Q3": Q3, "Q4": Q4, "Q5": Q5})
 
 
 @callback(
@@ -29,7 +29,7 @@ def generate_sample(maxval, nrows):
 def download_sample(n_clicks, data):
     if n_clicks is None:
         raise PreventUpdate
-    return dict(content=generate_sample(400, data).to_csv(index=False), filename="sample.csv")
+    return {"content": generate_sample(400, data).to_csv(index=False), "filename": "sample.csv"}
 
 
 @callback(
@@ -62,7 +62,7 @@ def store_data(contents, filename):
     Input("df_upload", "filename"),
     prevent_initial_call=True,
 )
-def loading_overlay(filename):
+def loading_overlay(filename) -> bool:
     return True
 
 
@@ -147,7 +147,7 @@ def save_state(
         "y_dropdown": y_dropdown,
         "color_dropdown": color_dropdown,
     }
-    return dict(content=json.dumps(state, indent=2), filename="state.json")
+    return {"content": json.dumps(state, indent=2), "filename": "state.json"}
 
 
 @callback(
@@ -286,7 +286,7 @@ def spider_theme(figdata, theme):
     State("helper-modal", "opened"),
     prevent_initial_call=True,
 )
-def helper_overlay(n_clicks, opened):
+def helper_overlay(n_clicks, opened) -> bool:
     return not opened
 
 
@@ -296,7 +296,7 @@ def helper_overlay(n_clicks, opened):
     State("settings-modal", "opened"),
     prevent_initial_call=True,
 )
-def settings_overlay(n_clicks, opened):
+def settings_overlay(n_clicks, opened) -> bool:
     return not opened
 
 
@@ -342,9 +342,8 @@ clientside_callback(
     Input("spider-selection-storage", "data"),
 )
 def build_table(data):
-    print(data)
     if data is None:
         raise PreventUpdate
     if len(data) == 0:
         raise PreventUpdate
-    return data, [{"field": k} for k in data[0].keys() if k != "_index"]
+    return data, [{"field": k} for k in data[0] if k != "_index"]

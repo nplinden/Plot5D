@@ -1,9 +1,11 @@
 import socket
+
+import click
 import dash
 from dash import Dash
-import click
-from plot5d.components.appshell import appshell
+
 from plot5d.callbacks import *
+from plot5d.components.appshell import appshell
 
 
 def get_free_port():
