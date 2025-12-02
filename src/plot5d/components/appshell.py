@@ -1,7 +1,7 @@
 import dash_mantine_components as dmc
-from components.header import header
-from components.navbar import navbar
-from components.mainpanel import mainpanel
+from plot5d.components.header import header
+from plot5d.components.navbar import navbar
+from plot5d.components.mainpanel import mainpanel
 
 
 def appshell():

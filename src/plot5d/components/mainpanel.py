@@ -1,9 +1,9 @@
 import dash_mantine_components as dmc
 from dash import html, dcc
-from components.text import helper
-from components.settings import settings
-from components.alias import alias
-from components.filters import filters
+from plot5d.components.text import helper
+from plot5d.components.settings import settings
+from plot5d.components.alias import alias
+from plot5d.components.filters import filters
 import dash_ag_grid as dag
 
 colors = dmc.DEFAULT_THEME["colors"]
