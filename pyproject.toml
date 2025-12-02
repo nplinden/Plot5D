@@ -14,6 +14,7 @@ dependencies = [
     "dash-mantine-components>=0.15.2",
     "dash-iconify>=0.1.2",
     "dash-ag-grid>=31.3.0",
+    "click>=8.1.8",
 ]
 
 [build-system]
@@ -23,11 +24,21 @@ build-backend = "hatchling.build"
 [project.scripts]
 plot5d = "plot5d.main:main"
 
-[[tool.uv.index]]
-url = "http://wiki.xamr.local/wheels"
-
 [tool.ruff]
 line-length = 120
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "N801",    # I favor ICSBEP nomenclature clarity over python naming conventions.
+    "N999",    # See N801
+    "D100",    # Module documentation is self evident in most of ICONIQE.
+    "PLR0915", # Material functions always break this.
+    "PLR2004",
+    "PLR0911",
+    "PLR0913",
+    "C901"
+]
