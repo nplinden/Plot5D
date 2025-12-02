@@ -53,10 +53,11 @@ def header():
             [
                 dmc.Group(
                     [
-                        dmc.Image(
-                            src="assets/logo.png",
-                            h="60",
-                        ),
+                        dmc.Image(src="assets/logo.png", alt="logo", w="4em"),
+                        # dmc.Image(
+                        #     src="assets/logo.png",
+                        #     h="60",
+                        # ),
                         dmc.Title("by Nicolas Linden", c="blue"),
                     ]
                 ),
